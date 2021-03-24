@@ -5,6 +5,7 @@ import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import com.itmo.java.basics.logic.impl.RemoveDatabaseRecord;
 import com.itmo.java.basics.logic.impl.SetDatabaseRecord;
 
+import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,16 +26,16 @@ public class DatabaseInputStream extends DataInputStream {
      * @return следующую запись, если она существует. {@link Optional#empty()} - если конец файла достигнут
      */
     public Optional<DatabaseRecord> readDbUnit() throws IOException {
-        int keyLength = this.readInt();
-        byte[] key = this.in.readNBytes(keyLength);
+        var keyLength = this.readInt();
+        var key = this.in.readNBytes(keyLength);
 
-        int valueLength = this.readInt();
+        var valueLength = this.readInt();
 
         if (valueLength == REMOVED_OBJECT_SIZE) {
             return Optional.empty();
         }
 
-        byte[] value = this.in.readNBytes(valueLength);
+        var value = this.in.readNBytes(valueLength);
 
         return Optional.of(new SetDatabaseRecord(key, value));
     }
