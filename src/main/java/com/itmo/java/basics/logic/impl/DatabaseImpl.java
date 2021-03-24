@@ -24,6 +24,8 @@ public class DatabaseImpl implements Database {
     }
 
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
+        if (dbName == null)
+            throw new DatabaseException("Name is null");
         Path fullPath;
         try {
             fullPath = Paths.get(databaseRoot.toString() + "/" + dbName);
@@ -44,7 +46,8 @@ public class DatabaseImpl implements Database {
     public void createTableIfNotExists(String tableName) throws DatabaseException {
         if(_tables.containsKey(tableName))
             throw new DatabaseException("This table name already exists");
-
+        if (tableName == null)
+            throw new DatabaseException("Name is null");
         TableIndex currentTableIndex = new TableIndex();
 
         _tableIndexMap.put(tableName, currentTableIndex);
@@ -54,14 +57,19 @@ public class DatabaseImpl implements Database {
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
         var table = _tables.get(tableName);
-
+        if (table == null) {
+            throw new DatabaseException("Table doesn't exist");
+        }
         table.write(objectKey, objectValue);
     }
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
         var table = _tables.get(tableName);
-
+        if (table == null)
+        {
+            throw new DatabaseException("Table doesn't exist");
+        }
         return table.read(objectKey);
     }
 

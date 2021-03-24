@@ -104,15 +104,11 @@ public class SegmentImpl implements Segment {
             var dbRecord = inputStream.readDbUnit();
             inputStream.close();
             _inputStream.close();
-            if (dbRecord.isPresent()) {
-                if (dbRecord.get().getValue() != null) {
-                    return Optional.of(dbRecord.get().getValue());
-                } else {
-                    return Optional.empty();
-                }
+            if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
+                return Optional.of(dbRecord.get().getValue());
             }
         }
-        throw new IOException("This segment was damaged");
+        return Optional.empty();
     }
 
     @Override

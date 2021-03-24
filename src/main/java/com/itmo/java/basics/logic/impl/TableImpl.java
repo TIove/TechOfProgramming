@@ -73,7 +73,7 @@ public class TableImpl implements Table {
             if (segment.isPresent())
                 return segment.get().read(objectKey);
             else
-                throw new DatabaseException("Segment was damaged");
+                return Optional.empty();
         } catch (IOException exc) {
             throw new DatabaseException(exc);
         }
