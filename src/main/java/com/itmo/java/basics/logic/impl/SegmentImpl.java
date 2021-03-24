@@ -95,10 +95,8 @@ public class SegmentImpl implements Segment {
         if (segment.isPresent()) {
             var neededOffset = segment.get().getOffset();
 
-            DataInputStream _inputStream = new DataInputStream(new FileInputStream(_segmentFullPath.toString()));
-            DataInputStream dis;
-            dis = new DataInputStream(_inputStream);
-            DatabaseInputStream inputStream = new DatabaseInputStream(dis);
+            FileInputStream _inputStream = new FileInputStream(_segmentFullPath.toString());
+            DatabaseInputStream inputStream = new DatabaseInputStream(_inputStream);
 
             if (inputStream.skip(neededOffset) != neededOffset) {
                 _inputStream.close();
