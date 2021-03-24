@@ -24,7 +24,7 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
     @Override
     public long size() {
         int keyUTFSize = String.valueOf(_key.length).getBytes(StandardCharsets.UTF_8).length;
-        return _key.length + keyUTFSize + 2;
+        return _key.length + keyUTFSize + 4;
     }
 
     @Override
