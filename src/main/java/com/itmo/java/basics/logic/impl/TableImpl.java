@@ -64,10 +64,11 @@ public class TableImpl implements Table {
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         Optional<Segment> segment = _tableIndex.searchForKey(objectKey);
         try {
-            if (segment.isPresent())
+            if (segment.isPresent()) {
                 return segment.get().read(objectKey);
-            else
+            } else {
                 return Optional.empty();
+            }
         } catch (IOException exc) {
             throw new DatabaseException(exc);
         }

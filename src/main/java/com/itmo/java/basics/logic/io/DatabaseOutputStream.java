@@ -6,7 +6,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 
 /**
  * Записывает данные в БД
@@ -37,12 +36,12 @@ public class DatabaseOutputStream extends DataOutputStream {
         int valueSize = databaseRecord.getValueSize();
 
         super.writeInt(keySize);
-        super.writeUTF(Arrays.toString(databaseRecord.getKey()));
+        super.write(databaseRecord.getKey());
         super.writeInt(valueSize);
 
         byte[] value = databaseRecord.getValue();
         if (value != null) {
-            super.writeUTF(Arrays.toString(value));
+            super.write(value);
         }
 
         return super.written;
