@@ -61,9 +61,8 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-        if (_outputStream == null) {
-            _outputStream = new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
-        }
+        _outputStream =
+                new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
         DatabaseOutputStream outputStream = new DatabaseOutputStream(_outputStream);
 
         var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
@@ -83,8 +82,9 @@ public class SegmentImpl implements Segment {
 
         if (MAX_SEGMENT_SIZE <= _segmentSize) {
             _isReadOnly = true;
-            _outputStream.close();
         }
+
+        _outputStream.close();
 
         return !_isReadOnly;
     }
