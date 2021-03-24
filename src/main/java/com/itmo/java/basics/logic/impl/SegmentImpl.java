@@ -24,8 +24,6 @@ public class SegmentImpl implements Segment {
     private final String _name;
     private final Path _segmentFullPath;
 
-    private DataOutputStream _outputStream;
-
     private final SegmentIndex _segmentIndex = new SegmentIndex();
 
 
@@ -61,8 +59,9 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-        _outputStream =
+        DataOutputStream _outputStream =
                 new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
+
         DatabaseOutputStream outputStream = new DatabaseOutputStream(_outputStream);
 
         var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
@@ -100,11 +99,13 @@ public class SegmentImpl implements Segment {
             DatabaseInputStream inputStream = new DatabaseInputStream(_inputStream);
 
             if (inputStream.skip(neededOffset) != neededOffset) {
+                _inputStream.close();
                 inputStream.close();
                 return Optional.empty();
             }
 
             var dbRecord = inputStream.readDbUnit();
+            _inputStream.close();
             inputStream.close();
 
             if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
