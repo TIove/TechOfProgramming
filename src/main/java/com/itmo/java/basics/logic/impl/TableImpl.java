@@ -86,8 +86,8 @@ public class TableImpl implements Table {
         }
 
         try {
-            _currentSegment.delete(objectKey);
             _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
+            _currentSegment.delete(objectKey);
         } catch (IOException exc) {
             throw new DatabaseException(exc);
         }

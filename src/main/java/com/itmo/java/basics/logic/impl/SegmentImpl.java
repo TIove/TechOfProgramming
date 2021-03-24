@@ -98,11 +98,7 @@ public class SegmentImpl implements Segment {
             DataInputStream _inputStream = new DataInputStream(new FileInputStream(_segmentFullPath.toString()));
             DatabaseInputStream inputStream = new DatabaseInputStream(_inputStream);
 
-            if (inputStream.skip(neededOffset) != neededOffset) {
-                _inputStream.close();
-                inputStream.close();
-                return Optional.empty();
-            }
+            inputStream.skip(neededOffset);
 
             var dbRecord = inputStream.readDbUnit();
             _inputStream.close();
