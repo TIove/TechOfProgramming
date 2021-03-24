@@ -81,8 +81,10 @@ public class SegmentImpl implements Segment {
         _segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
         _segmentSize += currentOffset;
 
-        if (MAX_SEGMENT_SIZE <= _segmentSize)
+        if (MAX_SEGMENT_SIZE <= _segmentSize) {
             _isReadOnly = true;
+            _outputStream.close();
+        }
 
         return !_isReadOnly;
     }
