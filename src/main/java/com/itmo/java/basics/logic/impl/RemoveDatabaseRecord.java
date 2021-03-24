@@ -5,7 +5,7 @@ import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import java.nio.charset.StandardCharsets;
 
 public class RemoveDatabaseRecord implements WritableDatabaseRecord {
-    private byte[] _key;
+    private final byte[] _key;
 
     public RemoveDatabaseRecord(byte[] key) {
         _key = key;
@@ -23,8 +23,8 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public long size() {
-        int keyUTFSize = String.valueOf(_key.length).getBytes(StandardCharsets.UTF_8).length;
-        return _key.length + keyUTFSize + 4;
+        final int INT_SIZE = 4;
+        return _key.length + INT_SIZE + INT_SIZE;
     }
 
     @Override

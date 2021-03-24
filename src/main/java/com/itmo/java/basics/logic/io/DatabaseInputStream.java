@@ -28,6 +28,10 @@ public class DatabaseInputStream extends DataInputStream {
         int keyLength = super.readInt();
         byte[] key = super.in.readNBytes(keyLength);
 
+        if (key.length != keyLength) {
+            return Optional.empty();
+        }
+
         int valueLength = super.readInt();
 
         if (valueLength == REMOVED_OBJECT_SIZE) {
@@ -35,6 +39,10 @@ public class DatabaseInputStream extends DataInputStream {
         }
 
         byte[] value = super.in.readNBytes(valueLength);
+
+        if (value.length != valueLength) {
+            return Optional.empty();
+        }
 
         return Optional.of(new SetDatabaseRecord(key, value));
     }

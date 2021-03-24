@@ -26,7 +26,9 @@ public class TableImpl implements Table {
         _tableIndex = tableIndex;
     }
 
-    static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
+    static Table create(String tableName,
+                        Path pathToDatabaseRoot,
+                        TableIndex tableIndex) throws DatabaseException {
         Path fullPath;
         try {
             fullPath = Paths.get(pathToDatabaseRoot.toString() + '/' + tableName);
@@ -51,10 +53,8 @@ public class TableImpl implements Table {
             }
 
             _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
-            if (!_currentSegment.write(objectKey, objectValue)) {
-                var segmentName = SegmentImpl.createSegmentName(_name);
-                _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
-            }
+            _currentSegment.write(objectKey, objectValue);
+
         } catch (IOException exc) {
             throw new DatabaseException(exc);
         }

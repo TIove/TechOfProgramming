@@ -19,7 +19,7 @@ public class SegmentImpl implements Segment {
     private static final int MAX_SEGMENT_SIZE = 100_000;
 
     private boolean _isReadOnly = false;
-    private int _segmentSize = 0;
+    private int _segmentSize;
 
     private final String _name;
     private final Path _segmentFullPath;
@@ -32,6 +32,7 @@ public class SegmentImpl implements Segment {
     private SegmentImpl(String segmentName, Path tableRootPath) {
         _name = segmentName;
         _segmentFullPath = Path.of(tableRootPath.toString() + '/' + segmentName);
+        _segmentSize = 0;
     }
 
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {

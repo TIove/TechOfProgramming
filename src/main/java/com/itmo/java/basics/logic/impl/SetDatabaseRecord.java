@@ -5,15 +5,12 @@ import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import java.nio.charset.StandardCharsets;
 
 public class SetDatabaseRecord implements WritableDatabaseRecord {
-    private byte[] _value;
-    private byte[] _key;
-    private int _size;
+    private final byte[] _value;
+    private final byte[] _key;
 
     public SetDatabaseRecord(byte[] value, byte[] key) {
         _key = key;
         _value = value;
-
-        _size = key.length + value.length;
     }
 
     @Override
@@ -28,13 +25,12 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public long size() {
-        int keyUTFSize = 4;
-        int valueUTFSize = 4;
+        final int INT_SIZE = 4;
 
         return _key.length +
                 _value.length +
-                valueUTFSize +
-                keyUTFSize;
+                INT_SIZE +
+                INT_SIZE;
     }
 
     @Override
@@ -49,6 +45,6 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public int getValueSize() {
-        return _value.length == 0 ? -1 : _value.length;
+        return _value.length;
     }
 }
