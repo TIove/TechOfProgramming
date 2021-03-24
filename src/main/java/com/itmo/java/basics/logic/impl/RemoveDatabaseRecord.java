@@ -2,20 +2,29 @@ package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
+import java.nio.charset.StandardCharsets;
+
 public class RemoveDatabaseRecord implements WritableDatabaseRecord {
+    private byte[] _key;
+
+    public RemoveDatabaseRecord(byte[] key) {
+        _key = key;
+    }
+
     @Override
     public byte[] getKey() {
-        return new byte[0];
+        return _key;
     }
 
     @Override
     public byte[] getValue() {
-        return new byte[0];
+        return null;
     }
 
     @Override
     public long size() {
-        return 0;
+        int keyUTFSize = String.valueOf(_key.length).getBytes(StandardCharsets.UTF_8).length;
+        return _key.length + keyUTFSize + 2;
     }
 
     @Override
@@ -25,11 +34,11 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public int getKeySize() {
-        return 0;
+        return _key.length;
     }
 
     @Override
     public int getValueSize() {
-        return 0;
+        return -1;
     }
 }
