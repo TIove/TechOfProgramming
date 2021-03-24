@@ -75,16 +75,20 @@ public class TableImpl implements Table {
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
-        var segment = _tableIndex.searchForKey(objectKey);
+        if (_tableIndex.searchForKey(objectKey).isEmpty()) {
+            throw new DatabaseException("This key wasn't used");
+        }
 
-        if (segment.isPresent()) {
-            try {
-                segment.get().delete(objectKey);
-            } catch (IOException exc) {
-                throw new DatabaseException(exc);
-            }
-        } else {
-            throw new DatabaseException("Incorrect key");
+        if (_currentSegment == null || _currentSegment.isReadOnly()) {
+            var segmentName = SegmentImpl.createSegmentName(_name);
+            _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
+        }
+
+        try {
+            _currentSegment.delete(objectKey);
+            _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
+        } catch (IOException exc) {
+            throw new DatabaseException(exc);
         }
     }
 }
