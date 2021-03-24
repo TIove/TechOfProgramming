@@ -35,15 +35,15 @@ public class DatabaseOutputStream extends DataOutputStream {
         int keySize = databaseRecord.getKeySize();
         int valueSize = databaseRecord.getValueSize();
 
-        super.writeInt(keySize);
-        super.write(databaseRecord.getKey());
-        super.writeInt(valueSize);
+        this.writeInt(keySize);
+        this.write(databaseRecord.getKey());
+        this.writeInt(valueSize);
 
         byte[] value = databaseRecord.getValue();
         if (value != null) {
-            super.write(value);
+            this.write(value);
         }
 
-        return super.written;
+        return this.written;
     }
 }

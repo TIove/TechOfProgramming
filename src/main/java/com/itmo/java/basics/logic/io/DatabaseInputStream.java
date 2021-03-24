@@ -25,24 +25,16 @@ public class DatabaseInputStream extends DataInputStream {
      * @return следующую запись, если она существует. {@link Optional#empty()} - если конец файла достигнут
      */
     public Optional<DatabaseRecord> readDbUnit() throws IOException {
-        int keyLength = super.readInt();
-        byte[] key = super.in.readNBytes(keyLength);
+        int keyLength = this.readInt();
+        byte[] key = this.in.readNBytes(keyLength);
 
-        if (key.length != keyLength) {
-            return Optional.empty();
-        }
-
-        int valueLength = super.readInt();
+        int valueLength = this.readInt();
 
         if (valueLength == REMOVED_OBJECT_SIZE) {
             return Optional.empty();
         }
 
-        byte[] value = super.in.readNBytes(valueLength);
-
-        if (value.length != valueLength) {
-            return Optional.empty();
-        }
+        byte[] value = this.in.readNBytes(valueLength);
 
         return Optional.of(new SetDatabaseRecord(key, value));
     }
