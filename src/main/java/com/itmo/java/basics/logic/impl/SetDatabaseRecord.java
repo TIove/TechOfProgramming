@@ -28,8 +28,8 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public long size() {
-        int keyUTFSize = String.valueOf(_key.length).getBytes(StandardCharsets.UTF_8).length;
-        int valueUTFSize = String.valueOf(_value.length).getBytes(StandardCharsets.UTF_8).length;
+        int keyUTFSize = 4;
+        int valueUTFSize = 4;
 
         return _key.length +
                 _value.length +
