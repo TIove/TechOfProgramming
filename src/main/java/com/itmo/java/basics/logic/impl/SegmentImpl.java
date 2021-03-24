@@ -1,6 +1,5 @@
 package com.itmo.java.basics.logic.impl;
 
-
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.logic.Segment;
@@ -22,13 +21,12 @@ public class SegmentImpl implements Segment {
     private boolean _isReadOnly = false;
     private int _segmentSize = 0;
 
-    private String _name;
-    private Path _segmentFullPath;
+    private final String _name;
+    private final Path _segmentFullPath;
 
     private DataOutputStream _outputStream;
-    private DataInputStream _inputStream;
 
-    private SegmentIndex _segmentIndex = new SegmentIndex();
+    private final SegmentIndex _segmentIndex = new SegmentIndex();
 
 
     private SegmentImpl(String segmentName, Path tableRootPath) {
@@ -75,13 +73,14 @@ public class SegmentImpl implements Segment {
         } else {
             record = new RemoveDatabaseRecord(keyInBytes);
         }
+
         int currentOffset = outputStream.write(record);
 
         var offsetInfo = new SegmentOffsetInfoImpl(_segmentSize);
         _segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
         _segmentSize += currentOffset;
 
-        if (MAX_SEGMENT_SIZE < _segmentSize)
+        if (MAX_SEGMENT_SIZE <= _segmentSize)
             _isReadOnly = true;
 
         return !_isReadOnly;
@@ -93,17 +92,18 @@ public class SegmentImpl implements Segment {
 
         if (segment.isPresent()) {
             var neededOffset = segment.get().getOffset();
-            _inputStream = new DataInputStream(new FileInputStream(_segmentFullPath.toString()));
+
+            DataInputStream _inputStream = new DataInputStream(new FileInputStream(_segmentFullPath.toString()));
             DatabaseInputStream inputStream = new DatabaseInputStream(_inputStream);
+
             if (inputStream.skip(neededOffset) != neededOffset) {
-                _inputStream.close();
                 inputStream.close();
                 return Optional.empty();
             }
 
             var dbRecord = inputStream.readDbUnit();
             inputStream.close();
-            _inputStream.close();
+
             if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
                 return Optional.of(dbRecord.get().getValue());
             }

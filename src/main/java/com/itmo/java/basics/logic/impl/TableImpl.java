@@ -12,20 +12,16 @@ import java.nio.file.Paths;
 import java.util.Optional;
 
 public class TableImpl implements Table {
-    private String _name;
-    private Path _path;
-    private Path _tableRootPath;
-    private TableIndex _tableIndex;
+    private final String _name;
+    private final Path _tableRootPath;
+    private final TableIndex _tableIndex;
     private Segment _currentSegment;
 
     private TableImpl(
             String tableName,
-            Path pathToDatabaseRoot,
             Path tableRootPath,
-            TableIndex tableIndex)
-    {
+            TableIndex tableIndex) {
         _name = tableName;
-        _path = pathToDatabaseRoot;
         _tableRootPath = tableRootPath;
         _tableIndex = tableIndex;
     }
@@ -38,7 +34,7 @@ public class TableImpl implements Table {
         } catch (IOException e) {
             throw new DatabaseException(e);
         }
-        return new TableImpl(tableName, pathToDatabaseRoot, fullPath, tableIndex);
+        return new TableImpl(tableName, fullPath, tableIndex);
     }
 
     @Override
@@ -48,20 +44,18 @@ public class TableImpl implements Table {
 
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
-        if (_tableIndex.searchForKey(objectKey).isPresent())
-            throw new DatabaseException("This key already exists");
-
         try {
-            if (_currentSegment == null) {
+            if (_currentSegment == null || _currentSegment.isReadOnly()) {
                 var segmentName = SegmentImpl.createSegmentName(_name);
                 _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
             }
+
             _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
             if (!_currentSegment.write(objectKey, objectValue)) {
                 var segmentName = SegmentImpl.createSegmentName(_name);
                 _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
             }
-        } catch(IOException exc) {
+        } catch (IOException exc) {
             throw new DatabaseException(exc);
         }
     }
