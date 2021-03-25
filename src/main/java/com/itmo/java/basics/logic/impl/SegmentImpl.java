@@ -28,7 +28,6 @@ public class SegmentImpl implements Segment {
 
     private final SegmentIndex _segmentIndex = new SegmentIndex();
 
-
     private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
         _name = segmentName;
         _segmentFullPath = Path.of(tableRootPath.toString() + '/' + segmentName);
@@ -90,21 +89,21 @@ public class SegmentImpl implements Segment {
 
         if (segment.isPresent()) {
             var neededOffset = segment.get().getOffset();
-            DataInputStream dataInputStream =
-                    new DataInputStream(new FileInputStream(_segmentFullPath.toString()));
+            try (FileInputStream fis = new FileInputStream(_segmentFullPath.toString())) {
+                DataInputStream dataInputStream =
+                        new DataInputStream(fis);
+                DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream);
+                if (inputStream.skip(neededOffset) != neededOffset) {
+                    inputStream.close();
+                    return Optional.empty();
+                }
 
-            DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream);
-
-            if (inputStream.skip(neededOffset) != neededOffset) {
+                var dbRecord = inputStream.readDbUnit();
                 inputStream.close();
-                return Optional.empty();
-            }
 
-            var dbRecord = inputStream.readDbUnit();
-            inputStream.close();
-
-            if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
-                return Optional.of(dbRecord.get().getValue());
+                if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
+                    return Optional.of(dbRecord.get().getValue());
+                }
             }
         }
         return Optional.empty();
