@@ -35,7 +35,7 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public boolean isValuePresented() {
-        return _value.length > 0;
+        return _value != null;
     }
 
     @Override
