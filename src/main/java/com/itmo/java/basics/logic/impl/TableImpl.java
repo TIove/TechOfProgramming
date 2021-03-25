@@ -26,16 +26,23 @@ public class TableImpl implements Table {
         _tableIndex = tableIndex;
     }
 
+    private void validateOrCreateNewSegment() throws DatabaseException {
+        if (_currentSegment == null || _currentSegment.isReadOnly()) {
+            var segmentName = SegmentImpl.createSegmentName(_name);
+            _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
+        }
+    }
+
     static Table create(String tableName,
                         Path pathToDatabaseRoot,
                         TableIndex tableIndex) throws DatabaseException {
-        Path fullPath;
+        Path fullPath = Paths.get(pathToDatabaseRoot.toString() + '/' + tableName);
         try {
-            fullPath = Paths.get(pathToDatabaseRoot.toString() + '/' + tableName);
             Files.createDirectory(fullPath);
         } catch (IOException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseException("Exception while creating stream for path - " + fullPath.toString(), e);
         }
+
         return new TableImpl(tableName, fullPath, tableIndex);
     }
 
@@ -47,16 +54,13 @@ public class TableImpl implements Table {
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
         try {
-            if (_currentSegment == null || _currentSegment.isReadOnly()) {
-                var segmentName = SegmentImpl.createSegmentName(_name);
-                _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
-            }
+            validateOrCreateNewSegment();
 
             _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
             _currentSegment.write(objectKey, objectValue);
 
         } catch (IOException exc) {
-            throw new DatabaseException(exc);
+            throw new DatabaseException("Exception while writing new data", exc);
         }
     }
 
@@ -70,26 +74,23 @@ public class TableImpl implements Table {
                 return Optional.empty();
             }
         } catch (IOException exc) {
-            throw new DatabaseException(exc);
+            throw new DatabaseException("Exception while reading from segment - " + segment.get().getName(), exc);
         }
     }
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
         if (_tableIndex.searchForKey(objectKey).isEmpty()) {
-            throw new DatabaseException("This key wasn't used");
+            throw new DatabaseException("Key - " + objectKey + " wasn't used");
         }
 
-        if (_currentSegment == null || _currentSegment.isReadOnly()) {
-            var segmentName = SegmentImpl.createSegmentName(_name);
-            _currentSegment = SegmentImpl.create(segmentName, _tableRootPath);
-        }
+        validateOrCreateNewSegment();
 
         try {
-            _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
             _currentSegment.delete(objectKey);
+            _tableIndex.onIndexedEntityUpdated(objectKey, _currentSegment);
         } catch (IOException exc) {
-            throw new DatabaseException(exc);
+            throw new DatabaseException("Exception while writing RemoveDbRecord in - " + _currentSegment, exc);
         }
     }
 }

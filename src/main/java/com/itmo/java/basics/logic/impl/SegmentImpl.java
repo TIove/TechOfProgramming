@@ -10,9 +10,7 @@ import com.itmo.java.basics.logic.io.DatabaseOutputStream;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Optional;
 
 public class SegmentImpl implements Segment {
@@ -29,16 +27,23 @@ public class SegmentImpl implements Segment {
     private final SegmentIndex _segmentIndex = new SegmentIndex();
 
     private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
+        _segmentSize = 0;
         _name = segmentName;
         _segmentFullPath = Path.of(tableRootPath.toString() + '/' + segmentName);
+
         try {
-            DataOutputStream outputStream =
-                    new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
-            _dbOutputStream = new DatabaseOutputStream(outputStream);
+            _dbOutputStream = createDatabaseOutputStream(_segmentFullPath);
         } catch (IOException exc) {
-            throw new DatabaseException(exc);
+            throw new DatabaseException("Exception while creating stream for path - "
+                    + _segmentFullPath.toString(), exc);
         }
-        _segmentSize = 0;
+    }
+
+    private DatabaseOutputStream createDatabaseOutputStream(Path path) throws IOException {
+        DataOutputStream outputStream =
+                new DataOutputStream(new FileOutputStream(path.toString(), true));
+
+        return new DatabaseOutputStream(outputStream);
     }
 
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
@@ -88,12 +93,12 @@ public class SegmentImpl implements Segment {
         var segment = _segmentIndex.searchForKey(objectKey);
 
         if (segment.isPresent()) {
-            var neededOffset = segment.get().getOffset();
-            try (FileInputStream fis = new FileInputStream(_segmentFullPath.toString())) {
-                DataInputStream dataInputStream =
-                        new DataInputStream(fis);
-                DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream);
-                if (inputStream.skip(neededOffset) != neededOffset) {
+            long offsetToRecord = segment.get().getOffset();
+            try (FileInputStream fileInputStream = new FileInputStream(_segmentFullPath.toString());
+                 DataInputStream dataInputStream = new DataInputStream(fileInputStream);
+                 DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream)) {
+
+                if (inputStream.skip(offsetToRecord) != offsetToRecord) {
                     inputStream.close();
                     return Optional.empty();
                 }

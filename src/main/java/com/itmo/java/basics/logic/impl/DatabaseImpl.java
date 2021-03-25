@@ -46,10 +46,14 @@ public class DatabaseImpl implements Database {
 
     @Override
     public void createTableIfNotExists(String tableName) throws DatabaseException {
-        if (_tables.containsKey(tableName))
-            throw new DatabaseException("This table name already exists");
-        if (tableName == null)
-            throw new DatabaseException("Name is null");
+        if (tableName == null) {
+            throw new DatabaseException("Table name is null");
+        }
+
+        if (_tables.containsKey(tableName)) {
+            throw new DatabaseException("Table name - " + tableName + " already exists");
+        }
+
         TableIndex currentTableIndex = new TableIndex();
 
         _tableIndexMap.put(tableName, currentTableIndex);
@@ -61,7 +65,7 @@ public class DatabaseImpl implements Database {
         var table = _tables.get(tableName);
 
         if (table == null) {
-            throw new DatabaseException("Table doesn't exist");
+            throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
 
         table.write(objectKey, objectValue);
@@ -72,7 +76,7 @@ public class DatabaseImpl implements Database {
         var table = _tables.get(tableName);
 
         if (table == null) {
-            throw new DatabaseException("Table doesn't exist");
+            throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
 
         return table.read(objectKey);
@@ -81,6 +85,10 @@ public class DatabaseImpl implements Database {
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
         var table = _tables.get(tableName);
+
+        if (table == null) {
+            throw new DatabaseException("Table " + tableName + " doesn't exist");
+        }
 
         table.delete(objectKey);
     }
