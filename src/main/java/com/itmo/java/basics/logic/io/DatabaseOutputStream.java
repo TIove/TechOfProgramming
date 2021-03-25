@@ -44,6 +44,6 @@ public class DatabaseOutputStream extends DataOutputStream {
             this.write(value);
         }
 
-        return this.written;
+        return (int)databaseRecord.size();
     }
 }

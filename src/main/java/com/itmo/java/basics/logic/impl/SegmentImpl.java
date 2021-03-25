@@ -24,7 +24,7 @@ public class SegmentImpl implements Segment {
     private final String _name;
     private final Path _segmentFullPath;
 
-    private final DataOutputStream _outputStream;
+    private final DatabaseOutputStream _dbOutputStream;
 
     private final SegmentIndex _segmentIndex = new SegmentIndex();
 
@@ -33,8 +33,9 @@ public class SegmentImpl implements Segment {
         _name = segmentName;
         _segmentFullPath = Path.of(tableRootPath.toString() + '/' + segmentName);
         try {
-            _outputStream =
+            DataOutputStream outputStream =
                     new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
+            _dbOutputStream = new DatabaseOutputStream(outputStream);
         } catch (IOException exc) {
             throw new DatabaseException(exc);
         }
@@ -60,8 +61,6 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-        DatabaseOutputStream outputStream = new DatabaseOutputStream(_outputStream);
-
         var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
 
         WritableDatabaseRecord record;
@@ -71,7 +70,7 @@ public class SegmentImpl implements Segment {
             record = new RemoveDatabaseRecord(keyInBytes);
         }
 
-        int currentOffset = outputStream.write(record);
+        int currentOffset = _dbOutputStream.write(record);
 
         var offsetInfo = new SegmentOffsetInfoImpl(_segmentSize);
         _segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
@@ -79,7 +78,7 @@ public class SegmentImpl implements Segment {
 
         if (MAX_SEGMENT_SIZE <= _segmentSize) {
             _isReadOnly = true;
-            _outputStream.close();
+            _dbOutputStream.close();
         }
 
         return !_isReadOnly;
