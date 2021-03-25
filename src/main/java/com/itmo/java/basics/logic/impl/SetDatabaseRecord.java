@@ -8,7 +8,7 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
     private final byte[] _value;
     private final byte[] _key;
 
-    public SetDatabaseRecord(byte[] value, byte[] key) {
+    public SetDatabaseRecord(byte[] key, byte[] value) {
         _key = key;
         _value = value;
     }
