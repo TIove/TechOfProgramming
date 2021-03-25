@@ -24,23 +24,24 @@ public class SegmentImpl implements Segment {
     private final String _name;
     private final Path _segmentFullPath;
 
+    private final DataOutputStream _outputStream;
+
     private final SegmentIndex _segmentIndex = new SegmentIndex();
 
 
-    private SegmentImpl(String segmentName, Path tableRootPath) {
+    private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
         _name = segmentName;
         _segmentFullPath = Path.of(tableRootPath.toString() + '/' + segmentName);
+        try {
+            _outputStream =
+                    new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
+        } catch (IOException exc) {
+            throw new DatabaseException(exc);
+        }
         _segmentSize = 0;
     }
 
     static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
-        Path fullPath;
-        try {
-            fullPath = Paths.get(tableRootPath.toString() + "/" + segmentName);
-            Files.createFile(fullPath);
-        } catch (IOException e) {
-            throw new DatabaseException(e);
-        }
         return new SegmentImpl(segmentName, tableRootPath);
     }
 
@@ -58,9 +59,6 @@ public class SegmentImpl implements Segment {
         if (isReadOnly()) {
             return false;
         }
-
-        DataOutputStream _outputStream =
-                new DataOutputStream(new FileOutputStream(_segmentFullPath.toString(), true));
 
         DatabaseOutputStream outputStream = new DatabaseOutputStream(_outputStream);
 
@@ -81,9 +79,8 @@ public class SegmentImpl implements Segment {
 
         if (MAX_SEGMENT_SIZE <= _segmentSize) {
             _isReadOnly = true;
+            _outputStream.close();
         }
-
-        _outputStream.close();
 
         return !_isReadOnly;
     }
@@ -94,8 +91,10 @@ public class SegmentImpl implements Segment {
 
         if (segment.isPresent()) {
             var neededOffset = segment.get().getOffset();
+            DataInputStream dataInputStream =
+                    new DataInputStream(new FileInputStream(_segmentFullPath.toString()));
 
-            DatabaseInputStream inputStream = new DatabaseInputStream(new FileInputStream(_segmentFullPath.toString()));
+            DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream);
 
             if (inputStream.skip(neededOffset) != neededOffset) {
                 inputStream.close();
