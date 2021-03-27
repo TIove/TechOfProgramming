@@ -3,15 +3,15 @@ package com.itmo.java.basics.logic.impl;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
 public class RemoveDatabaseRecord implements WritableDatabaseRecord {
-    private final byte[] _key;
+    private final byte[] key;
 
     public RemoveDatabaseRecord(byte[] key) {
-        _key = key;
+        this.key = key;
     }
 
     @Override
     public byte[] getKey() {
-        return _key;
+        return key;
     }
 
     @Override
@@ -22,7 +22,7 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
     @Override
     public long size() {
         final int INT_SIZE = 4;
-        return _key.length + INT_SIZE + INT_SIZE;
+        return key.length + INT_SIZE + INT_SIZE;
     }
 
     @Override
@@ -32,7 +32,7 @@ public class RemoveDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public int getKeySize() {
-        return _key.length;
+        return key.length;
     }
 
     @Override

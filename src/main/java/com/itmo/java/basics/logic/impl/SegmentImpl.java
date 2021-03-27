@@ -16,26 +16,26 @@ import java.util.Optional;
 public class SegmentImpl implements Segment {
     private static final int MAX_SEGMENT_SIZE = 100_000;
 
-    private boolean _isReadOnly = false;
-    private int _segmentSize;
+    private boolean isReadOnly = false;
+    private int segmentSize;
 
-    private final String _name;
-    private final Path _segmentFullPath;
+    private final String name;
+    private final Path segmentFullPath;
 
-    private final DatabaseOutputStream _dbOutputStream;
+    private final DatabaseOutputStream dbOutputStream;
 
-    private final SegmentIndex _segmentIndex = new SegmentIndex();
+    private final SegmentIndex segmentIndex = new SegmentIndex();
 
     private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
-        _segmentSize = 0;
-        _name = segmentName;
-        _segmentFullPath = Path.of(tableRootPath.toString() + '/' + segmentName);
+        segmentSize = 0;
+        name = segmentName;
+        segmentFullPath = Path.of(tableRootPath.toString() + File.separator + segmentName);
 
         try {
-            _dbOutputStream = createDatabaseOutputStream(_segmentFullPath);
+            dbOutputStream = createDatabaseOutputStream(segmentFullPath);
         } catch (IOException exc) {
             throw new DatabaseException("Exception while creating stream for path - "
-                    + _segmentFullPath.toString(), exc);
+                    + segmentFullPath.toString(), exc);
         }
     }
 
@@ -56,7 +56,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public String getName() {
-        return _name;
+        return name;
     }
 
     @Override
@@ -74,27 +74,27 @@ public class SegmentImpl implements Segment {
             record = new RemoveDatabaseRecord(keyInBytes);
         }
 
-        int currentOffset = _dbOutputStream.write(record);
+        int currentOffset = dbOutputStream.write(record);
 
-        var offsetInfo = new SegmentOffsetInfoImpl(_segmentSize);
-        _segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
-        _segmentSize += currentOffset;
+        var offsetInfo = new SegmentOffsetInfoImpl(segmentSize);
+        segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
+        segmentSize += currentOffset;
 
-        if (MAX_SEGMENT_SIZE <= _segmentSize) {
-            _isReadOnly = true;
-            _dbOutputStream.close();
+        if (segmentSize >= MAX_SEGMENT_SIZE) {
+            isReadOnly = true;
+            dbOutputStream.close();
         }
 
-        return !_isReadOnly;
+        return !isReadOnly;
     }
 
     @Override
     public Optional<byte[]> read(String objectKey) throws IOException {
-        var segment = _segmentIndex.searchForKey(objectKey);
+        var segment = segmentIndex.searchForKey(objectKey);
 
         if (segment.isPresent()) {
             long offsetToRecord = segment.get().getOffset();
-            try (FileInputStream fileInputStream = new FileInputStream(_segmentFullPath.toString());
+            try (FileInputStream fileInputStream = new FileInputStream(segmentFullPath.toString());
                  DataInputStream dataInputStream = new DataInputStream(fileInputStream);
                  DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream)) {
 
@@ -116,7 +116,7 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean isReadOnly() {
-        return _isReadOnly;
+        return isReadOnly;
     }
 
     @Override

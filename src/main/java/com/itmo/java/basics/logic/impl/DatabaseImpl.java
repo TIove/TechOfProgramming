@@ -5,22 +5,24 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.Table;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 
 public class DatabaseImpl implements Database {
-    private final String _name;
-    private final Path _pathToDatabaseRoot;
-    private final HashMap<String, Table> _tables = new HashMap<>();
-    private final HashMap<String, TableIndex> _tableIndexMap = new HashMap<>();
+    private final String name;
+    private final Path pathToDatabaseRoot;
+    private final Map<String, Table> tables = new HashMap<>();
+    private final Map<String, TableIndex> tableIndexMap = new HashMap<>();
 
     private DatabaseImpl(String dbName, Path pathToDatabaseRoot) {
-        _name = dbName;
-        _pathToDatabaseRoot = pathToDatabaseRoot;
+        this.name = dbName;
+        this.pathToDatabaseRoot = pathToDatabaseRoot;
     }
 
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
@@ -30,10 +32,10 @@ public class DatabaseImpl implements Database {
 
         Path fullPath;
         try {
-            fullPath = Paths.get(databaseRoot.toString() + "/" + dbName);
+            fullPath = Paths.get(databaseRoot.toString() + File.separator + dbName);
             Files.createDirectory(fullPath);
         } catch (IOException e) {
-            throw new DatabaseException(e);
+            throw new DatabaseException("IO Exception while creating directory of data base", e);
         }
 
         return new DatabaseImpl(dbName, fullPath);
@@ -41,7 +43,7 @@ public class DatabaseImpl implements Database {
 
     @Override
     public String getName() {
-        return _name;
+        return name;
     }
 
     @Override
@@ -50,19 +52,19 @@ public class DatabaseImpl implements Database {
             throw new DatabaseException("Table name is null");
         }
 
-        if (_tables.containsKey(tableName)) {
+        if (tables.containsKey(tableName)) {
             throw new DatabaseException("Table name - " + tableName + " already exists");
         }
 
         TableIndex currentTableIndex = new TableIndex();
 
-        _tableIndexMap.put(tableName, currentTableIndex);
-        _tables.put(tableName, TableImpl.create(tableName, _pathToDatabaseRoot, currentTableIndex));
+        tableIndexMap.put(tableName, currentTableIndex);
+        tables.put(tableName, TableImpl.create(tableName, pathToDatabaseRoot, currentTableIndex));
     }
 
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
-        var table = _tables.get(tableName);
+        var table = tables.get(tableName);
 
         if (table == null) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
@@ -73,7 +75,7 @@ public class DatabaseImpl implements Database {
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
-        var table = _tables.get(tableName);
+        var table = tables.get(tableName);
 
         if (table == null) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
@@ -84,7 +86,7 @@ public class DatabaseImpl implements Database {
 
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
-        var table = _tables.get(tableName);
+        var table = tables.get(tableName);
 
         if (table == null) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
