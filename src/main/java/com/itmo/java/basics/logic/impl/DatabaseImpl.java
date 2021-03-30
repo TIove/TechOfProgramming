@@ -35,7 +35,7 @@ public class DatabaseImpl implements Database {
             fullPath = Paths.get(databaseRoot.toString() + File.separator + dbName);
             Files.createDirectory(fullPath);
         } catch (IOException e) {
-            throw new DatabaseException("IO Exception while creating directory of data base", e);
+            throw new DatabaseException("IO Exception while creating directory " + dbName + " of data base", e);
         }
 
         return new DatabaseImpl(dbName, fullPath);
