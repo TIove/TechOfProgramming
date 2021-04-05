@@ -6,6 +6,7 @@ import com.itmo.java.basics.initialization.Initializer;
 
 public class DatabaseInitializer implements Initializer {
     public DatabaseInitializer(TableInitializer tableInitializer) {
+
     }
 
     /**

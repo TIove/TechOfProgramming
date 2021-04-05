@@ -9,6 +9,7 @@ import java.util.Optional;
 
 public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
     public ExecutionEnvironmentImpl(DatabaseConfig config) {
+
     }
 
     @Override

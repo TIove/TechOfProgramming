@@ -7,6 +7,7 @@ import com.itmo.java.basics.initialization.Initializer;
 public class TableInitializer implements Initializer {
 
     public TableInitializer(SegmentInitializer segmentInitializer) {
+
     }
 
     /**
