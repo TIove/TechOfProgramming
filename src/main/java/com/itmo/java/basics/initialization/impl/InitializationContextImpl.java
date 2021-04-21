@@ -7,7 +7,6 @@ import com.itmo.java.basics.initialization.SegmentInitializationContext;
 import com.itmo.java.basics.initialization.TableInitializationContext;
 
 public class InitializationContextImpl implements InitializationContext {
-
     private final ExecutionEnvironment executionEnvironment;
     private final DatabaseInitializationContext currentDatabaseContext;
     private final TableInitializationContext currentTableContext;
@@ -22,7 +21,7 @@ public class InitializationContextImpl implements InitializationContext {
         this.currentTableContext = currentTableContext;
         this.currentSegmentContext = currentSegmentContext;
     }
-
+    //TODO Создано чтобы была версионность, общение чз executionEnvironment
     @Override
     public ExecutionEnvironment executionEnvironment() {
         return executionEnvironment;

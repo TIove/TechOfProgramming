@@ -5,8 +5,10 @@ import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 
 public class DatabaseInitializer implements Initializer {
-    public DatabaseInitializer(TableInitializer tableInitializer) {
+    private final TableInitializer tableInitializer;
 
+    public DatabaseInitializer(TableInitializer tableInitializer) {
+        this.tableInitializer = tableInitializer;
     }
 
     /**
@@ -19,5 +21,7 @@ public class DatabaseInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext initialContext) throws DatabaseException {
+
+        tableInitializer.perform(initialContext);
     }
 }

@@ -6,7 +6,6 @@ import com.itmo.java.basics.initialization.Initializer;
 
 
 public class SegmentInitializer implements Initializer {
-
     /**
      * Добавляет в контекст информацию об инициализируемом сегменте.
      * Составляет индекс сегмента
@@ -17,5 +16,6 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+
     }
 }

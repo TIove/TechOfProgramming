@@ -7,6 +7,8 @@ import com.itmo.java.basics.logic.Segment;
 import java.nio.file.Path;
 
 public class TableInitializationContextImpl implements TableInitializationContext {
+    private String TableName;
+
     public TableInitializationContextImpl(String tableName, Path databasePath, TableIndex tableIndex) {
     }
 

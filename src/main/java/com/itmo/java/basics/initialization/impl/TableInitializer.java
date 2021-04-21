@@ -5,9 +5,10 @@ import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 
 public class TableInitializer implements Initializer {
+    private final SegmentInitializer segmentInitializer;
 
     public TableInitializer(SegmentInitializer segmentInitializer) {
-
+        this.segmentInitializer = segmentInitializer;
     }
 
     /**
@@ -20,5 +21,6 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        segmentInitializer.perform(context);
     }
 }
