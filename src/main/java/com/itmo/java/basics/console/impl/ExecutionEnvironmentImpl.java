@@ -4,6 +4,7 @@ import com.itmo.java.basics.config.DatabaseConfig;
 import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.logic.Database;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -15,6 +16,11 @@ public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
 
     public ExecutionEnvironmentImpl(DatabaseConfig config) {
         this.workingPath = Path.of(config.getWorkingPath());
+
+        var dir = new File(this.workingPath.toString());
+        if (!dir.exists()) {
+            dir.mkdir();
+        }
     }
 
     @Override

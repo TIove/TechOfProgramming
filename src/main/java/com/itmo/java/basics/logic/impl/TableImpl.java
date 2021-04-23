@@ -41,8 +41,8 @@ public class TableImpl implements Table {
     }
 
     public static Table create(String tableName,
-                        Path pathToDatabaseRoot,
-                        TableIndex tableIndex) throws DatabaseException {
+                               Path pathToDatabaseRoot,
+                               TableIndex tableIndex) throws DatabaseException {
         Path fullPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
         try {
             Files.createDirectory(fullPath);
@@ -50,7 +50,11 @@ public class TableImpl implements Table {
             throw new DatabaseException("Exception while creating stream for path - " + fullPath.toString(), e);
         }
 
-        return new TableImpl(tableName, fullPath, tableIndex);
+        Table table = new TableImpl(tableName, fullPath, tableIndex);
+
+        return CachingTable.builder()
+                .table(table)
+                .build();
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
@@ -59,11 +63,10 @@ public class TableImpl implements Table {
         String tableName = context.getTableName();
         Path tablePath = context.getTablePath();
 
-        return TableImpl.builder()
-                .tableIndex(tableIndex)
-                .currentSegment(currentSegment)
-                .name(tableName)
-                .tableRootPath(tablePath)
+        Table table = new TableImpl(tableName, tablePath, tableIndex, currentSegment);
+
+        return CachingTable.builder()
+                .table(table)
                 .build();
     }
 
