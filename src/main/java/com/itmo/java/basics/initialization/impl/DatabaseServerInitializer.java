@@ -47,5 +47,8 @@ public class DatabaseServerInitializer implements Initializer {
 
             databaseInitializer.perform(currentContext);
         }
+
+        Database newDatabase = DatabaseImpl.initializeFromContext(context.currentDbContext());
+        context.executionEnvironment().addDatabase(newDatabase);
     }
 }
