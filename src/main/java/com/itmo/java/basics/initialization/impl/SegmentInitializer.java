@@ -42,7 +42,6 @@ public class SegmentInitializer implements Initializer {
         String segmentName = context.currentSegmentContext().getSegmentName();
         String tableName = context.currentTableContext().getTableName();
 
-
         SegmentIndex segmentIndex = new SegmentIndex();
         long currentOffset = 0;
 

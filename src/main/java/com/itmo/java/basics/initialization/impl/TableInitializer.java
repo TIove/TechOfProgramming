@@ -59,7 +59,6 @@ public class TableInitializer implements Initializer {
 //                context.currentTableContext().getTableIndex(),
 //                context.currentTableContext().getCurrentSegment());
 
-        var newTable = TableImpl.initializeFromContext(context.currentTableContext());
-        context.currentDbContext().addTable(newTable);
+
     }
 }

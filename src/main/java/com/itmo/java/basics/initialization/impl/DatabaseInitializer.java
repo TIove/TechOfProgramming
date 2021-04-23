@@ -54,7 +54,7 @@ public class DatabaseInitializer implements Initializer {
             tableInitializer.perform(currentContext);
         }
 
-        Database newDatabase = DatabaseImpl.initializeFromContext(context.currentDbContext());
-        context.executionEnvironment().addDatabase(newDatabase);
+        var newTable = TableImpl.initializeFromContext(context.currentTableContext());
+        context.currentDbContext().addTable(newTable);
     }
 }
