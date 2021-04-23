@@ -5,14 +5,19 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class TableImpl implements Table {
     private final String name;
     private final Path tableRootPath;
@@ -49,7 +54,17 @@ public class TableImpl implements Table {
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
-        return null;
+        TableIndex tableIndex = context.getTableIndex();
+        Segment currentSegment = context.getCurrentSegment();
+        String tableName = context.getTableName();
+        Path tablePath = context.getTablePath();
+
+        return TableImpl.builder()
+                .tableIndex(tableIndex)
+                .currentSegment(currentSegment)
+                .name(tableName)
+                .tableRootPath(tablePath)
+                .build();
     }
 
     @Override

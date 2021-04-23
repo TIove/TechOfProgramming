@@ -5,6 +5,8 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -15,15 +17,19 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class DatabaseImpl implements Database {
-    private final String name;
-    private final Path pathToDatabaseRoot;
-    private final Map<String, Table> tables = new HashMap<>();
-    private final Map<String, TableIndex> tableIndexMap = new HashMap<>();
+    private String name;
+    private Path pathToDatabaseRoot;
+
+    @Builder.Default
+    private Map<String, Table> tables = new HashMap<>();
 
     private DatabaseImpl(String dbName, Path pathToDatabaseRoot) {
         this.name = dbName;
         this.pathToDatabaseRoot = pathToDatabaseRoot;
+        this.tables = new HashMap<>();
     }
 
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
@@ -43,7 +49,15 @@ public class DatabaseImpl implements Database {
     }
 
     public static Database initializeFromContext(DatabaseInitializationContext context) {
-        return null;
+        Map<String, Table> tablesMap = context.getTables();
+        String name = context.getDbName();
+        Path databasePath = context.getDatabasePath();
+
+        return DatabaseImpl.builder()
+                .name(name)
+                .pathToDatabaseRoot(databasePath)
+                .tables(tablesMap)
+                .build();
     }
 
     @Override
@@ -63,7 +77,6 @@ public class DatabaseImpl implements Database {
 
         TableIndex currentTableIndex = new TableIndex();
 
-        tableIndexMap.put(tableName, currentTableIndex);
         tables.put(tableName, TableImpl.create(tableName, pathToDatabaseRoot, currentTableIndex));
     }
 

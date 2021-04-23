@@ -3,6 +3,14 @@ package com.itmo.java.basics.initialization.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
+import com.itmo.java.basics.logic.Database;
+import com.itmo.java.basics.logic.impl.DatabaseImpl;
+
+import java.io.File;
+import java.io.FileFilter;
+import java.nio.file.Path;
+import java.util.Objects;
+import java.util.stream.Stream;
 
 public class DatabaseServerInitializer implements Initializer {
     private final DatabaseInitializer databaseInitializer;
@@ -20,8 +28,24 @@ public class DatabaseServerInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        // Заполнить context данными о БД и вызвать databaseInitializer.perform
+        Path workingPath = context.executionEnvironment().getWorkingPath();
 
-        databaseInitializer.perform(context);
+        File[] dbDirectories = new File(workingPath.toString())
+                .listFiles(File::isDirectory);
+
+        if (dbDirectories == null) {
+            throw new DatabaseException("There is no any DataBases on path - " + workingPath);
+        }
+
+        for (File currentDb : dbDirectories) {
+            var dataBaseContext = new DatabaseInitializationContextImpl(currentDb.getName(), currentDb.toPath());
+
+            InitializationContext currentContext = InitializationContextImpl.builder()
+                    .executionEnvironment(context.executionEnvironment())
+                    .currentDatabaseContext(dataBaseContext)
+                    .build();
+
+            databaseInitializer.perform(currentContext);
+        }
     }
 }

@@ -8,14 +8,18 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 import com.itmo.java.basics.logic.io.DatabaseInputStream;
 import com.itmo.java.basics.logic.io.DatabaseOutputStream;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class SegmentImpl implements Segment {
-    private static final int MAX_SEGMENT_SIZE = 100_000;
+    private static final int MAX_SEGMENT_SIZE = 1;
 
     private boolean isReadOnly = false;
     private int segmentSize;
@@ -25,12 +29,13 @@ public class SegmentImpl implements Segment {
 
     private final DatabaseOutputStream dbOutputStream;
 
-    private final SegmentIndex segmentIndex = new SegmentIndex();
+    private final SegmentIndex segmentIndex;
 
     private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
         segmentSize = 0;
         name = segmentName;
         segmentFullPath = Path.of(tableRootPath.toString() + File.separator + segmentName);
+        segmentIndex = new SegmentIndex();
 
         try {
             dbOutputStream = createDatabaseOutputStream(segmentFullPath);
@@ -52,7 +57,19 @@ public class SegmentImpl implements Segment {
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
-        return null;
+        int segmentSize = (int) context.getCurrentSize();
+        String segmentName = context.getSegmentName();
+        boolean isReadOnly = segmentSize >= MAX_SEGMENT_SIZE;
+        Path segmentFullPath = context.getSegmentPath();
+        SegmentIndex segmentIndex = context.getIndex();
+
+        return SegmentImpl.builder()
+                .segmentSize(segmentSize)
+                .name(segmentName)
+                .isReadOnly(isReadOnly)
+                .segmentFullPath(segmentFullPath)
+                .segmentIndex(segmentIndex)
+                .build();
     }
 
     static String createSegmentName(String tableName) {

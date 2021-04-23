@@ -3,6 +3,12 @@ package com.itmo.java.basics.initialization.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
+import com.itmo.java.basics.initialization.SegmentInitializationContext;
+import com.itmo.java.basics.logic.impl.SegmentImpl;
+import com.itmo.java.basics.logic.impl.TableImpl;
+
+import java.io.File;
+import java.nio.file.Path;
 
 public class TableInitializer implements Initializer {
     private final SegmentInitializer segmentInitializer;
@@ -21,6 +27,39 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        segmentInitializer.perform(context);
+        Path tablePath = context.currentTableContext().getTablePath();
+
+        File[] segmentFiles = new File(tablePath.toString())
+                .listFiles(File::isFile);
+
+        if (segmentFiles == null) {
+            throw new DatabaseException("There is no any Segments on path - " + tablePath);
+        }
+
+        for (File currentSegment : segmentFiles) {
+            var segmentContext = new SegmentInitializationContextImpl(
+                    currentSegment.getName(),
+                    currentSegment.toPath(),
+                    SegmentInitializationContextImpl.DEFAULT_INDEX_SIZE
+                    );
+
+            InitializationContext currentContext = InitializationContextImpl.builder()
+                    .executionEnvironment(context.executionEnvironment())
+                    .currentDatabaseContext(context.currentDbContext())
+                    .currentTableContext(context.currentTableContext())
+                    .currentSegmentContext(segmentContext)
+                    .build();
+
+            segmentInitializer.perform(currentContext);
+        }
+
+//        var currentTableContext = new TableInitializationContextImpl(
+//                context.currentTableContext().getTableName(),
+//                context.currentTableContext().getTablePath(),
+//                context.currentTableContext().getTableIndex(),
+//                context.currentTableContext().getCurrentSegment());
+
+        var newTable = TableImpl.initializeFromContext(context.currentTableContext());
+        context.currentDbContext().addTable(newTable);
     }
 }
