@@ -52,13 +52,5 @@ public class TableInitializer implements Initializer {
 
             segmentInitializer.perform(currentContext);
         }
-
-//        var currentTableContext = new TableInitializationContextImpl(
-//                context.currentTableContext().getTableName(),
-//                context.currentTableContext().getTablePath(),
-//                context.currentTableContext().getTableIndex(),
-//                context.currentTableContext().getCurrentSegment());
-
-
     }
 }
