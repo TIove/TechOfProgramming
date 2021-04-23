@@ -5,6 +5,7 @@ import com.itmo.java.basics.initialization.SegmentInitializationContext;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.io.File;
 import java.nio.file.Path;
 
 @Builder
@@ -28,7 +29,7 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
 
     public SegmentInitializationContextImpl(String segmentName, Path tablePath, int currentSize) {
         this.segmentName = segmentName;
-        this.segmentPath = tablePath;
+        this.segmentPath = Path.of(tablePath.toString() + File.separator + segmentName);
         this.tablePath = tablePath;
         this.currentSize = currentSize;
     }

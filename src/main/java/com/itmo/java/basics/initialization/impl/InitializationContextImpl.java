@@ -23,7 +23,7 @@ public class InitializationContextImpl implements InitializationContext {
         this.currentTableContext = currentTableContext;
         this.currentSegmentContext = currentSegmentContext;
     }
-    //TODO Создано чтобы была версионность, общение чз executionEnvironment
+
     @Override
     public ExecutionEnvironment executionEnvironment() {
         return executionEnvironment;
