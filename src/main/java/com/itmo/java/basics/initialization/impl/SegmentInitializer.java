@@ -59,6 +59,8 @@ public class SegmentInitializer implements Initializer {
                     SegmentOffsetInfo segmentOffsetInfo = new SegmentOffsetInfoImpl(currentOffset);
                     segmentIndex.onIndexedEntityUpdated(key, segmentOffsetInfo);
 
+                    currentOffset += 4 + key.getBytes(StandardCharsets.UTF_8).length + 4 + value.length;
+
                     var currentSegmentContext = new SegmentInitializationContextImpl(
                             segmentName,
                             segmentFullPath,
@@ -69,7 +71,7 @@ public class SegmentInitializer implements Initializer {
 
                     context.currentTableContext().getTableIndex().onIndexedEntityUpdated(key, newSegment);
 
-                    currentOffset += 4 + key.getBytes(StandardCharsets.UTF_8).length + 4 + value.length;
+
                 }
             }
 

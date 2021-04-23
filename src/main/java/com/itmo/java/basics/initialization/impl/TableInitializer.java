@@ -39,7 +39,7 @@ public class TableInitializer implements Initializer {
         for (File currentSegment : segmentFiles) {
             var segmentContext = new SegmentInitializationContextImpl(
                     currentSegment.getName(),
-                    currentSegment.toPath(),
+                    context.currentTableContext().getTablePath(),
                     SegmentInitializationContextImpl.DEFAULT_INDEX_SIZE
                     );
 
@@ -52,5 +52,8 @@ public class TableInitializer implements Initializer {
 
             segmentInitializer.perform(currentContext);
         }
+
+        var newTable = TableImpl.initializeFromContext(context.currentTableContext());
+        context.currentDbContext().addTable(newTable);
     }
 }

@@ -19,7 +19,7 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor
 public class SegmentImpl implements Segment {
-    private static final int MAX_SEGMENT_SIZE = 100_000;
+    private static final int MAX_SEGMENT_SIZE = 1;
 
     private boolean isReadOnly = false;
     private int segmentSize;
