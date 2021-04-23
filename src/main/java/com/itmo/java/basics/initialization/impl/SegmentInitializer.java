@@ -44,6 +44,7 @@ public class SegmentInitializer implements Initializer {
 
         SegmentIndex segmentIndex = new SegmentIndex();
         long currentOffset = 0;
+        long segmentSize = 0;
 
         try (FileInputStream fileInputStream = new FileInputStream(segmentFullPath.toString());
              DataInputStream dataInputStream = new DataInputStream(fileInputStream);
@@ -59,19 +60,19 @@ public class SegmentInitializer implements Initializer {
                     SegmentOffsetInfo segmentOffsetInfo = new SegmentOffsetInfoImpl(currentOffset);
                     segmentIndex.onIndexedEntityUpdated(key, segmentOffsetInfo);
 
-                    currentOffset += 4 + key.getBytes(StandardCharsets.UTF_8).length + 4 + value.length;
+                    segmentSize += 4 + key.getBytes(StandardCharsets.UTF_8).length + 4 + value.length;
 
                     var currentSegmentContext = new SegmentInitializationContextImpl(
                             segmentName,
                             segmentFullPath,
-                            (int) currentOffset,
+                            (int) segmentSize,
                             segmentIndex);
 
                     var newSegment = SegmentImpl.initializeFromContext(currentSegmentContext);
 
                     context.currentTableContext().getTableIndex().onIndexedEntityUpdated(key, newSegment);
 
-
+                    currentOffset += 4 + key.getBytes(StandardCharsets.UTF_8).length + 4 + value.length;
                 }
             }
 
