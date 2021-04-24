@@ -32,7 +32,7 @@ public class DatabaseInputStream extends DataInputStream {
         int valueLength = this.readInt();
 
         if (valueLength == REMOVED_OBJECT_SIZE) {
-            return Optional.of(new RemoveDatabaseRecord(key));
+            return Optional.empty();
         }
 
         byte[] value = this.in.readNBytes(valueLength);
