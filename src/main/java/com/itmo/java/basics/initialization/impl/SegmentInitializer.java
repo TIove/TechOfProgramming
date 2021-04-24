@@ -40,7 +40,6 @@ public class SegmentInitializer implements Initializer {
         Path tableFullPath = context.currentTableContext().getTablePath();
 
         String segmentName = context.currentSegmentContext().getSegmentName();
-        String tableName = context.currentTableContext().getTableName();
 
         SegmentIndex segmentIndex = new SegmentIndex();
         long currentOffset = 0;
@@ -77,6 +76,8 @@ public class SegmentInitializer implements Initializer {
                     context.currentTableContext().getTableIndex().onIndexedEntityUpdated(key, newSegment);
 
                     currentOffset += 4 + keySize + 4 + valueSize;
+                } else {
+                    throw new DatabaseException("Bad segment " + segmentName);
                 }
             }
 
