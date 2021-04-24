@@ -9,6 +9,7 @@ import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class TableInitializer implements Initializer {
     private final SegmentInitializer segmentInitializer;
@@ -35,6 +36,8 @@ public class TableInitializer implements Initializer {
         if (segmentFiles == null) {
             throw new DatabaseException("There is no any Segments on path - " + tablePath);
         }
+
+        Arrays.sort(segmentFiles);
 
         for (File currentSegment : segmentFiles) {
             var segmentContext = new SegmentInitializationContextImpl(

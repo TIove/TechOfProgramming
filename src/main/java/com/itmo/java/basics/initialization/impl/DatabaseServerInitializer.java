@@ -9,6 +9,8 @@ import com.itmo.java.basics.logic.impl.DatabaseImpl;
 import java.io.File;
 import java.io.FileFilter;
 import java.nio.file.Path;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 import java.util.stream.Stream;
 
@@ -36,6 +38,8 @@ public class DatabaseServerInitializer implements Initializer {
         if (dbDirectories == null) {
             throw new DatabaseException("There is no any DataBases on path - " + workingPath);
         }
+
+        Arrays.sort(dbDirectories);
 
         for (File currentDb : dbDirectories) {
             var dataBaseContext = new DatabaseInitializationContextImpl(

@@ -11,6 +11,7 @@ import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Arrays;
 
 public class DatabaseInitializer implements Initializer {
     private final TableInitializer tableInitializer;
@@ -37,6 +38,8 @@ public class DatabaseInitializer implements Initializer {
         if (tableDirectories == null) {
             throw new DatabaseException("There is no any Tables on path - " + databasePath);
         }
+
+        Arrays.sort(tableDirectories);
 
         for (File currentTable : tableDirectories) {
             var tableIndex = new TableIndex();
