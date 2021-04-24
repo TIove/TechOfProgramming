@@ -16,11 +16,6 @@ public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
 
     public ExecutionEnvironmentImpl(DatabaseConfig config) {
         this.workingPath = Path.of(config.getWorkingPath());
-
-        var dir = new File(this.workingPath.toString());
-        if (!dir.exists()) {
-            dir.mkdir();
-        }
     }
 
     @Override
