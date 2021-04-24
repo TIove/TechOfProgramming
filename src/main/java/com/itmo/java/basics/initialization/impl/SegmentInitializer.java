@@ -44,18 +44,24 @@ public class SegmentInitializer implements Initializer {
 
         SegmentIndex segmentIndex = new SegmentIndex();
         long currentOffset = 0;
-        long segmentSize = 0;
-
         try (FileInputStream fileInputStream = new FileInputStream(segmentFullPath.toString());
              DataInputStream dataInputStream = new DataInputStream(fileInputStream);
              DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream)) {
 
-            while (currentOffset < Files.size(segmentFullPath)) {
+            long segmentSize = Files.size(segmentFullPath);
+            while (currentOffset < segmentSize) {
                 var dbRecord = inputStream.readDbUnit();
 
-                if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
+                if (dbRecord.isPresent()) {
                     String key = new String(dbRecord.get().getKey(), StandardCharsets.UTF_8);
                     byte[] value = dbRecord.get().getValue();
+
+                    int keySize = key.getBytes(StandardCharsets.UTF_8).length;
+                    int valueSize = 0;
+
+                    if (value != null) {
+                        valueSize = value.length;
+                    }
 
                     SegmentOffsetInfo segmentOffsetInfo = new SegmentOffsetInfoImpl(currentOffset);
                     segmentIndex.onIndexedEntityUpdated(key, segmentOffsetInfo);
@@ -70,12 +76,6 @@ public class SegmentInitializer implements Initializer {
 
                     context.currentTableContext().getTableIndex().onIndexedEntityUpdated(key, newSegment);
 
-                    int keySize = key.getBytes(StandardCharsets.UTF_8).length;
-                    int valueSize = 0;
-
-                    if (value != null) {
-                        valueSize = value.length;
-                    }
                     currentOffset += 4 + keySize + 4 + valueSize;
                 }
             }
