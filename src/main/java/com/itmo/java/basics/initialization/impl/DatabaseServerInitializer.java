@@ -38,7 +38,9 @@ public class DatabaseServerInitializer implements Initializer {
         }
 
         for (File currentDb : dbDirectories) {
-            var dataBaseContext = new DatabaseInitializationContextImpl(currentDb.getName(), currentDb.toPath());
+            var dataBaseContext = new DatabaseInitializationContextImpl(
+                    currentDb.getName(),
+                    Path.of(currentDb.getAbsolutePath()));
 
             InitializationContext currentContext = InitializationContextImpl.builder()
                     .executionEnvironment(context.executionEnvironment())

@@ -42,7 +42,7 @@ public class DatabaseInitializer implements Initializer {
             var tableIndex = new TableIndex();
             var tableContext = new TableInitializationContextImpl(
                     currentTable.getName(),
-                    currentTable.toPath(),
+                    Path.of(currentTable.getAbsolutePath()),
                     tableIndex);
 
             InitializationContext currentContext = InitializationContextImpl.builder()
