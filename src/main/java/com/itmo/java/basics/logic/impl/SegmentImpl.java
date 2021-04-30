@@ -87,44 +87,29 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-//        var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
-//
-//        WritableDatabaseRecord record;
-//        if (objectValue != null) {
-//            record = new SetDatabaseRecord(keyInBytes, objectValue);
-//        } else {
-//            record = new RemoveDatabaseRecord(keyInBytes);
-//        }
-//
-//        int currentOffset = dbOutputStream.write(record);
-//
-//        var offsetInfo = new SegmentOffsetInfoImpl(segmentSize);
-//        segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
-//        segmentSize += currentOffset;
-//
-//        if (segmentSize >= MAX_SEGMENT_SIZE) {
-//            isReadOnly = true;
-//            dbOutputStream.close();
-//        }
+        var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
 
         WritableDatabaseRecord record;
-        if (objectValue == null) {
-            record = new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
+        if (objectValue != null) {
+            record = new SetDatabaseRecord(keyInBytes, objectValue);
         } else {
-            record = new SetDatabaseRecord(objectKey.getBytes(), objectValue);
+            record = new RemoveDatabaseRecord(keyInBytes);
         }
 
-        if (record.size() + segmentSize > MAX_SEGMENT_SIZE) {
-            segmentSize += this.dbOutputStream.write(record);
+        int currentOffset = dbOutputStream.write(record);
 
-            return false;
-        }
-        else {
-            segmentSize += this.dbOutputStream.write(record);
+        var offsetInfo = new SegmentOffsetInfoImpl(segmentSize);
+        segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
+        segmentSize += currentOffset;
 
-            return !isReadOnly;
+        if (segmentSize >= MAX_SEGMENT_SIZE) {
+            isReadOnly = true;
+            dbOutputStream.close();
         }
+
+        return !isReadOnly;
     }
+
 
     @Override
     public Optional<byte[]> read(String objectKey) throws IOException {
