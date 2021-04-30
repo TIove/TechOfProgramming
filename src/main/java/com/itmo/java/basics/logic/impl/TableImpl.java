@@ -100,7 +100,6 @@ public class TableImpl implements Table {
 
         try {
             currentSegment.delete(objectKey);
-            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
         } catch (IOException exc) {
             throw new DatabaseException("Exception while writing RemoveDbRecord in - " + currentSegment, exc);
         }
