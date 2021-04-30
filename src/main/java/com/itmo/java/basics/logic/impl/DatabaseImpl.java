@@ -21,14 +21,13 @@ import java.util.Optional;
 @AllArgsConstructor
 public class DatabaseImpl implements Database {
     private String name;
-    private Path pathToDatabaseRoot;
+    private Path databaseRoot;
 
-    @Builder.Default
-    private Map<String, Table> tables = new HashMap<>();
+    private Map<String, Table> tables;
 
-    private DatabaseImpl(String dbName, Path pathToDatabaseRoot) {
+    private DatabaseImpl(String dbName, Path databaseRoot) {
         this.name = dbName;
-        this.pathToDatabaseRoot = pathToDatabaseRoot;
+        this.databaseRoot = databaseRoot;
         this.tables = new HashMap<>();
     }
 
@@ -55,7 +54,7 @@ public class DatabaseImpl implements Database {
 
         return DatabaseImpl.builder()
                 .name(name)
-                .pathToDatabaseRoot(databasePath)
+                .databaseRoot(databasePath)
                 .tables(tablesMap)
                 .build();
     }
@@ -75,40 +74,45 @@ public class DatabaseImpl implements Database {
             throw new DatabaseException("Table name - " + tableName + " already exists");
         }
 
-        TableIndex currentTableIndex = new TableIndex();
+        try {
+            TableIndex currentTableIndex = new TableIndex();
+            Table newTable = TableImpl.create(tableName, databaseRoot, currentTableIndex);
 
-        tables.put(tableName, TableImpl.create(tableName, pathToDatabaseRoot, currentTableIndex));
+            tables.put(tableName, newTable);
+        } catch (DatabaseException e) {
+            throw new DatabaseException("Can not create table with name " + tableName, e);
+        }
     }
 
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
-        var table = tables.get(tableName);
-
-        if (table == null) {
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
+
+        var table = tables.get(tableName);
 
         table.write(objectKey, objectValue);
     }
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
-        var table = tables.get(tableName);
-
-        if (table == null) {
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
+
+        var table = tables.get(tableName);
 
         return table.read(objectKey);
     }
 
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
-        var table = tables.get(tableName);
-
-        if (table == null) {
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
+
+        var table = tables.get(tableName);
 
         table.delete(objectKey);
     }

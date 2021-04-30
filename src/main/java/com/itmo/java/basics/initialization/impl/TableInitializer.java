@@ -28,6 +28,7 @@ public class TableInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+
         Path tablePath = context.currentTableContext().getTablePath();
 
         File[] segmentFiles = new File(tablePath.toString())

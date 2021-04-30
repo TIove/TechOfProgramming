@@ -9,6 +9,7 @@ import lombok.Builder;
 
 @Builder
 public class InitializationContextImpl implements InitializationContext {
+
     private final ExecutionEnvironment executionEnvironment;
     private final DatabaseInitializationContext currentDatabaseContext;
     private final TableInitializationContext currentTableContext;

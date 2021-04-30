@@ -10,16 +10,13 @@ public class DatabaseConfig {
         this.workingPath = workingPath == null ? DEFAULT_WORKING_PATH : workingPath;
 
         var dir = new File(this.workingPath);
+
         if (!dir.exists()) {
             dir.mkdir();
         }
     }
 
     public String getWorkingPath() {
-        if (workingPath == null) {
-            return DEFAULT_WORKING_PATH;
-        }
-
-        return workingPath;
+        return this.workingPath;
     }
 }

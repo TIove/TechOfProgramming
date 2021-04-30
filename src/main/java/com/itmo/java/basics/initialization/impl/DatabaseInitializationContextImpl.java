@@ -3,28 +3,29 @@ package com.itmo.java.basics.initialization.impl;
 import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.logic.Table;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
 public class DatabaseInitializationContextImpl implements DatabaseInitializationContext {
     private final String name;
-    private final Path rootPath;
+    private final Path dbPath;
     private final Map<String, Table> tables = new HashMap<>();
 
     public DatabaseInitializationContextImpl(String dbName, Path databaseRoot) {
         this.name = dbName;
-        this.rootPath = databaseRoot;
+        this.dbPath = Path.of(databaseRoot + File.separator + dbName);
     }
 
     @Override
     public String getDbName() {
-        return name;
+        return this.name;
     }
 
     @Override
     public Path getDatabasePath() {
-        return rootPath;
+        return this.dbPath;
     }
 
     @Override

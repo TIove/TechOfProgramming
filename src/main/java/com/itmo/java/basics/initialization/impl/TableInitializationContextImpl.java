@@ -7,6 +7,7 @@ import com.itmo.java.basics.logic.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,14 +15,19 @@ import java.util.Map;
 @Builder
 @AllArgsConstructor
 public class TableInitializationContextImpl implements TableInitializationContext {
+
     private final String tableName;
-    private final Path rootPath;
+    private final Path tablePath;
     private final TableIndex tableIndex;
     private Segment currentSegment;
 
-    public TableInitializationContextImpl(String tableName, Path tablePath, TableIndex tableIndex) {
+    public TableInitializationContextImpl(
+            String tableName,
+            Path databasePath,
+            TableIndex tableIndex) {
+
         this.tableName = tableName;
-        this.rootPath = tablePath;
+        this.tablePath = Path.of(databasePath + File.separator + this.tableName);
         this.tableIndex = tableIndex;
     }
 
@@ -32,7 +38,7 @@ public class TableInitializationContextImpl implements TableInitializationContex
 
     @Override
     public Path getTablePath() {
-        return rootPath;
+        return tablePath;
     }
 
     @Override

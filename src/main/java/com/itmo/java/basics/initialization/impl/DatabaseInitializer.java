@@ -42,11 +42,11 @@ public class DatabaseInitializer implements Initializer {
         Arrays.sort(tableDirectories);
 
         for (File currentTable : tableDirectories) {
-            var tableIndex = new TableIndex();
+            var newTableIndex = new TableIndex();
             var tableContext = new TableInitializationContextImpl(
                     currentTable.getName(),
-                    Path.of(currentTable.getAbsolutePath()),
-                    tableIndex);
+                    context.currentDbContext().getDatabasePath(),
+                    newTableIndex);
 
             InitializationContext currentContext = InitializationContextImpl.builder()
                     .executionEnvironment(context.executionEnvironment())

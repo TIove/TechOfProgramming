@@ -38,11 +38,11 @@ public class SegmentInitializer implements Initializer {
     public void perform(InitializationContext context) throws DatabaseException {
         Path segmentFullPath = context.currentSegmentContext().getSegmentPath();
         Path tableFullPath = context.currentTableContext().getTablePath();
-
         String segmentName = context.currentSegmentContext().getSegmentName();
 
         SegmentIndex segmentIndex = new SegmentIndex();
         long currentOffset = 0;
+
         try (FileInputStream fileInputStream = new FileInputStream(segmentFullPath.toString());
              DataInputStream dataInputStream = new DataInputStream(fileInputStream);
              DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream)) {
@@ -93,5 +93,5 @@ public class SegmentInitializer implements Initializer {
         } catch (IOException exc) {
             throw new DatabaseException("IOException while reading segment " + segmentName, exc);
         }
-    }
+    } //TODO NP
 }

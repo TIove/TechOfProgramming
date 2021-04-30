@@ -8,6 +8,7 @@ import java.io.*;
  * Записывает данные в БД
  */
 public class DatabaseOutputStream extends DataOutputStream {
+
     public DatabaseOutputStream(OutputStream outputStream) {
         super(outputStream);
     }

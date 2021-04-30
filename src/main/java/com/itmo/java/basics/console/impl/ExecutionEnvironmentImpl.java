@@ -12,7 +12,7 @@ import java.util.Optional;
 
 public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
     private final Path workingPath;
-    private final Map<String, Database> databaseMap = new HashMap<>();
+    private final Map<String, Database> databasesMap = new HashMap<>();
 
     public ExecutionEnvironmentImpl(DatabaseConfig config) {
         this.workingPath = Path.of(config.getWorkingPath());
@@ -20,12 +20,12 @@ public class ExecutionEnvironmentImpl implements ExecutionEnvironment {
 
     @Override
     public Optional<Database> getDatabase(String name) {
-        return Optional.of(databaseMap.get(name));
+        return Optional.ofNullable(databasesMap.get(name));
     }
 
     @Override
     public void addDatabase(Database db) {
-        databaseMap.put(db.getName(), db);
+        databasesMap.put(db.getName(), db);
     }
 
     @Override
