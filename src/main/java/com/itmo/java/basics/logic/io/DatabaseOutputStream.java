@@ -2,15 +2,12 @@ package com.itmo.java.basics.logic.io;
 
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 
 /**
  * Записывает данные в БД
  */
 public class DatabaseOutputStream extends DataOutputStream {
-
     public DatabaseOutputStream(OutputStream outputStream) {
         super(outputStream);
     }
@@ -31,6 +28,20 @@ public class DatabaseOutputStream extends DataOutputStream {
      * @throws IOException если запись не удалась
      */
     public int write(WritableDatabaseRecord databaseRecord) throws IOException {
-        return 0;
+        int keySize = databaseRecord.getKeySize();
+        byte[] key = databaseRecord.getKey();
+        int valueSize = databaseRecord.getValueSize();
+
+        this.writeInt(keySize);
+        this.write(key);
+        this.writeInt(valueSize);
+
+        byte[] value = databaseRecord.getValue();
+
+        if (value != null) {
+            this.write(value);
+        }
+
+        return (int) databaseRecord.size();
     }
 }
