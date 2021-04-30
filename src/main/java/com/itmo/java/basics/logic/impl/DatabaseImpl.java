@@ -20,10 +20,10 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor
 public class DatabaseImpl implements Database {
-    private final String name;
-    private final Path databaseRoot;
+    private String name;
+    private Path databaseRoot;
 
-    private final Map<String, Table> tables;
+    private Map<String, Table> tables;
 
     private DatabaseImpl(String dbName, Path databaseRoot) {
         this.name = dbName;
