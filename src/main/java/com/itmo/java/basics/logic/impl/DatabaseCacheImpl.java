@@ -28,6 +28,10 @@ public class DatabaseCacheImpl implements DatabaseCache {
 
     @Override
     public void delete(String key) {
-
+        if (!this.map.containsKey(key) && this.map.size() >= this.capacity) {
+            Iterator<String> it = this.map.keySet().iterator();
+            it.next();
+            it.remove();
+        }
     }
 }

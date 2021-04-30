@@ -5,9 +5,7 @@ import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
 import com.itmo.java.basics.logic.Database;
-import com.itmo.java.basics.logic.Table;
 import com.itmo.java.basics.logic.impl.DatabaseImpl;
-import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
 import java.nio.file.Path;

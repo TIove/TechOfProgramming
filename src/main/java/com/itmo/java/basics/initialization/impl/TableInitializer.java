@@ -3,8 +3,6 @@ package com.itmo.java.basics.initialization.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
-import com.itmo.java.basics.initialization.SegmentInitializationContext;
-import com.itmo.java.basics.logic.impl.SegmentImpl;
 import com.itmo.java.basics.logic.impl.TableImpl;
 
 import java.io.File;
@@ -24,7 +22,7 @@ public class TableInitializer implements Initializer {
      *
      * @param context контекст с информацией об инициализируемой бд, окружении, таблицы
      * @throws DatabaseException если в контексте лежит неправильный путь к таблице, невозможно прочитать содержимого папки,
-     *  или если возникла ошибка ошибка дочерних инициализаторов
+     *                           или если возникла ошибка ошибка дочерних инициализаторов
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
@@ -45,7 +43,7 @@ public class TableInitializer implements Initializer {
                     currentSegment.getName(),
                     context.currentTableContext().getTablePath(),
                     SegmentInitializationContextImpl.DEFAULT_INDEX_SIZE
-                    );
+            );
 
             InitializationContext currentContext = InitializationContextImpl.builder()
                     .executionEnvironment(context.executionEnvironment())

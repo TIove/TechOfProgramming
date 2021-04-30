@@ -3,16 +3,10 @@ package com.itmo.java.basics.initialization.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
-import com.itmo.java.basics.logic.Database;
-import com.itmo.java.basics.logic.impl.DatabaseImpl;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.nio.file.Path;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 
 public class DatabaseServerInitializer implements Initializer {
     private final DatabaseInitializer databaseInitializer;

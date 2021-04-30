@@ -4,25 +4,17 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.SegmentOffsetInfo;
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
-import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.initialization.InitializationContext;
 import com.itmo.java.basics.initialization.Initializer;
-import com.itmo.java.basics.initialization.SegmentInitializationContext;
-import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.logic.impl.SegmentImpl;
-import com.itmo.java.basics.logic.impl.TableImpl;
 import com.itmo.java.basics.logic.io.DatabaseInputStream;
 
 import java.io.DataInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.lang.reflect.AccessibleObject;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
-import java.util.Optional;
 
 
 public class SegmentInitializer implements Initializer {
@@ -36,7 +28,7 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
-        if(context == null ||
+        if (context == null ||
                 context.currentSegmentContext() == null ||
                 context.currentTableContext() == null ||
                 context.currentSegmentContext() == null) {

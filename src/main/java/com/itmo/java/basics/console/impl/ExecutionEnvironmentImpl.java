@@ -4,7 +4,6 @@ import com.itmo.java.basics.config.DatabaseConfig;
 import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.logic.Database;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;

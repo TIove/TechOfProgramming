@@ -37,8 +37,7 @@ public class DatabaseInitializationContextImpl implements DatabaseInitialization
     public void addTable(Table table) {
         String tableName = table.getName();
 
-        if (tables.containsKey(tableName))
-        {
+        if (tables.containsKey(tableName)) {
             throw new RuntimeException("Table" + tableName + "is already exists");
         }
 

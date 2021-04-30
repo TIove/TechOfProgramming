@@ -1,14 +1,10 @@
 package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
-import com.itmo.java.basics.index.impl.TableIndex;
-import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.logic.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.io.IOException;
-import java.nio.file.Path;
 import java.util.Optional;
 
 @Builder
