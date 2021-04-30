@@ -3,6 +3,7 @@ package com.itmo.java.basics.logic.impl;
 import com.itmo.java.basics.index.impl.SegmentIndex;
 import com.itmo.java.basics.index.impl.SegmentOffsetInfoImpl;
 import com.itmo.java.basics.initialization.SegmentInitializationContext;
+import com.itmo.java.basics.logic.DatabaseRecord;
 import com.itmo.java.basics.logic.Segment;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.logic.WritableDatabaseRecord;
@@ -19,41 +20,25 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor
 public class SegmentImpl implements Segment {
-    private static final int MAX_SEGMENT_SIZE = 100_000;
-
-    private boolean isReadOnly = false;
-    private int segmentSize;
+    private static final int MAX_SEGMENT_SIZE = 100000;
 
     private final String name;
-    private final Path segmentFullPath;
+    private final SegmentIndex index;
+    private final Path filePath;
+    private long offset = 0;
 
-    private final DatabaseOutputStream dbOutputStream;
-
-    private final SegmentIndex segmentIndex;
-
-    private SegmentImpl(String segmentName, Path tableRootPath) throws DatabaseException {
-        segmentSize = 0;
-        name = segmentName;
-        segmentFullPath = Path.of(tableRootPath.toString() + File.separator + segmentName);
-        segmentIndex = new SegmentIndex();
-
+    public static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
         try {
-            dbOutputStream = createDatabaseOutputStream(segmentFullPath);
-        } catch (IOException exc) {
-            throw new DatabaseException("Exception while creating stream for path - "
-                    + segmentFullPath, exc);
+            return new SegmentImpl(segmentName, tableRootPath);
+        } catch (IOException e) {
+            throw new DatabaseException("Segment creation error:  " + e.getMessage(), e);
         }
     }
 
-    private DatabaseOutputStream createDatabaseOutputStream(Path path) throws IOException {
-        DataOutputStream outputStream =
-                new DataOutputStream(new FileOutputStream(path.toString(), true));
-
-        return new DatabaseOutputStream(outputStream);
-    }
-
-    public static Segment create(String segmentName, Path tableRootPath) throws DatabaseException {
-        return new SegmentImpl(segmentName, tableRootPath);
+    private SegmentImpl(String segmentName, Path tableRootPath) throws IOException {
+        index = new SegmentIndex();
+        name = segmentName;
+        filePath = Path.of(tableRootPath.toString() + File.separator + name);
     }
 
     public static Segment initializeFromContext(SegmentInitializationContext context) {
@@ -64,11 +49,10 @@ public class SegmentImpl implements Segment {
         SegmentIndex segmentIndex = context.getIndex();
 
         return SegmentImpl.builder()
-                .segmentSize(segmentSize)
+                .offset(segmentSize)
                 .name(segmentName)
-                .isReadOnly(isReadOnly) //TODO
-                .segmentFullPath(segmentFullPath)
-                .segmentIndex(segmentIndex)
+                .filePath(segmentFullPath)
+                .index(segmentIndex)
                 .build();
     }
 
@@ -78,78 +62,54 @@ public class SegmentImpl implements Segment {
 
     @Override
     public String getName() {
-        return name;
+        return filePath.getFileName().toString();
+    }
+
+    private int writeStream(WritableDatabaseRecord record) throws IOException {
+        try (DatabaseOutputStream stream = new DatabaseOutputStream(new FileOutputStream(filePath.toString(), true))) {
+            index.onIndexedEntityUpdated(new String(record.getKey()), new SegmentOffsetInfoImpl(offset));
+            var returned = stream.write(record);
+            stream.close();
+            return returned;
+        }
     }
 
     @Override
     public boolean write(String objectKey, byte[] objectValue) throws IOException {
-        if (isReadOnly()) {
+        SetDatabaseRecord record = new SetDatabaseRecord(objectKey.getBytes(), objectValue);
+        if (record.size() + offset > MAX_SEGMENT_SIZE) {
+            offset += writeStream(record);
             return false;
         }
-
-        var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
-
-        WritableDatabaseRecord record;
-        if (objectValue != null) {
-            record = new SetDatabaseRecord(keyInBytes, objectValue);
-        } else {
-            record = new RemoveDatabaseRecord(keyInBytes);
-        }
-
-        int currentOffset = dbOutputStream.write(record);
-
-        var offsetInfo = new SegmentOffsetInfoImpl(segmentSize);
-        segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
-        segmentSize += currentOffset;
-
-        if (segmentSize >= MAX_SEGMENT_SIZE) {
-            isReadOnly = true;
-            dbOutputStream.close();
-        }
-
-        return !isReadOnly;
+        offset += writeStream(record);
+        return true;
     }
-
 
     @Override
     public Optional<byte[]> read(String objectKey) throws IOException {
-        var segment = segmentIndex.searchForKey(objectKey);
+        var currentOffset = index.searchForKey(objectKey);
 
-        if (segment.isPresent()) {
-            long offsetToRecord = segment.get().getOffset();
-            try (FileInputStream fileInputStream = new FileInputStream(segmentFullPath.toString());
-                 DataInputStream dataInputStream = new DataInputStream(fileInputStream);
-                 DatabaseInputStream inputStream = new DatabaseInputStream(dataInputStream)) {
+        if (currentOffset.isEmpty())
+            return Optional.empty();
 
-                if (inputStream.skip(offsetToRecord) != offsetToRecord) {
-                    inputStream.close();
-                    return Optional.empty();
-                }
+        var fileStream = new FileInputStream(filePath.toString());
 
-                var dbRecord = inputStream.readDbUnit();
-                inputStream.close();
-
-                if (dbRecord.isPresent() && dbRecord.get().getValue() != null) {
-                    return Optional.of(dbRecord.get().getValue());
-                }
-            }
-        }
-        return Optional.empty();
+        fileStream.skip(currentOffset.get().getOffset());
+        var stream = new DatabaseInputStream(fileStream);
+        var readRecord = stream.readDbUnit();
+        return readRecord.map(DatabaseRecord::getValue);
     }
 
     @Override
     public boolean isReadOnly() {
-        return isReadOnly;
+        return filePath.toFile().length() >= MAX_SEGMENT_SIZE;
     }
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        if (this.isReadOnly()) {
+        if (this.isReadOnly())
             return false;
-        }
-
-        write(objectKey, null);
-
+        writeStream(new RemoveDatabaseRecord(objectKey.getBytes()));
         return true;
     }
 }
