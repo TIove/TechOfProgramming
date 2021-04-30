@@ -41,7 +41,7 @@ public class SegmentImpl implements Segment {
             dbOutputStream = createDatabaseOutputStream(segmentFullPath);
         } catch (IOException exc) {
             throw new DatabaseException("Exception while creating stream for path - "
-                    + segmentFullPath.toString(), exc);
+                    + segmentFullPath, exc);
         }
     }
 
@@ -66,7 +66,7 @@ public class SegmentImpl implements Segment {
         return SegmentImpl.builder()
                 .segmentSize(segmentSize)
                 .name(segmentName)
-                .isReadOnly(isReadOnly)
+                .isReadOnly(isReadOnly) //TODO
                 .segmentFullPath(segmentFullPath)
                 .segmentIndex(segmentIndex)
                 .build();
@@ -143,6 +143,12 @@ public class SegmentImpl implements Segment {
 
     @Override
     public boolean delete(String objectKey) throws IOException {
-        return write(objectKey, null);
+        if (this.isReadOnly()) {
+            return false;
+        }
+
+        write(objectKey, null);
+
+        return true;
     }
 }

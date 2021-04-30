@@ -36,6 +36,14 @@ public class SegmentInitializer implements Initializer {
      */
     @Override
     public void perform(InitializationContext context) throws DatabaseException {
+        if(context == null ||
+                context.currentSegmentContext() == null ||
+                context.currentTableContext() == null ||
+                context.currentSegmentContext() == null) {
+
+            throw new DatabaseException("Bad info in context");
+        }
+
         Path segmentFullPath = context.currentSegmentContext().getSegmentPath();
         Path tableFullPath = context.currentTableContext().getTablePath();
         String segmentName = context.currentSegmentContext().getSegmentName();
@@ -93,5 +101,5 @@ public class SegmentInitializer implements Initializer {
         } catch (IOException exc) {
             throw new DatabaseException("IOException while reading segment " + segmentName, exc);
         }
-    } //TODO NP
+    }
 }
