@@ -87,27 +87,43 @@ public class SegmentImpl implements Segment {
             return false;
         }
 
-        var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
+//        var keyInBytes = objectKey.getBytes(StandardCharsets.UTF_8);
+//
+//        WritableDatabaseRecord record;
+//        if (objectValue != null) {
+//            record = new SetDatabaseRecord(keyInBytes, objectValue);
+//        } else {
+//            record = new RemoveDatabaseRecord(keyInBytes);
+//        }
+//
+//        int currentOffset = dbOutputStream.write(record);
+//
+//        var offsetInfo = new SegmentOffsetInfoImpl(segmentSize);
+//        segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
+//        segmentSize += currentOffset;
+//
+//        if (segmentSize >= MAX_SEGMENT_SIZE) {
+//            isReadOnly = true;
+//            dbOutputStream.close();
+//        }
 
         WritableDatabaseRecord record;
-        if (objectValue != null) {
-            record = new SetDatabaseRecord(keyInBytes, objectValue);
+        if (objectValue == null) {
+            record = new RemoveDatabaseRecord(objectKey.getBytes(StandardCharsets.UTF_8));
         } else {
-            record = new RemoveDatabaseRecord(keyInBytes);
+            record = new SetDatabaseRecord(objectKey.getBytes(), objectValue);
         }
 
-        int currentOffset = dbOutputStream.write(record);
+        if (record.size() + segmentSize > MAX_SEGMENT_SIZE) {
+            segmentSize += this.dbOutputStream.write(record);
 
-        var offsetInfo = new SegmentOffsetInfoImpl(segmentSize);
-        segmentIndex.onIndexedEntityUpdated(objectKey, offsetInfo);
-        segmentSize += currentOffset;
-
-        if (segmentSize >= MAX_SEGMENT_SIZE) {
-            isReadOnly = true;
-            dbOutputStream.close();
+            return false;
         }
+        else {
+            segmentSize += this.dbOutputStream.write(record);
 
-        return !isReadOnly;
+            return !isReadOnly;
+        }
     }
 
     @Override
