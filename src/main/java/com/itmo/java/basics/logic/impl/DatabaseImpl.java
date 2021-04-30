@@ -7,6 +7,7 @@ import java.nio.file.Path;
 import java.util.Optional;
 
 public class DatabaseImpl implements Database {
+    String name;
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
         return null;
     }
