@@ -20,18 +20,9 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TableImpl implements Table {
     private final String name;
-    private final Path tableRootPath;
+    private Path tableRootPath;
     private final TableIndex tableIndex;
     private Segment currentSegment;
-
-    private TableImpl(
-            String tableName,
-            Path tableRootPath,
-            TableIndex tableIndex) {
-        this.name = tableName;
-        this.tableRootPath = tableRootPath;
-        this.tableIndex = tableIndex;
-    }
 
     private void validateOrCreateNewSegment() throws DatabaseException {
         if (currentSegment == null || currentSegment.isReadOnly()) {
@@ -40,22 +31,21 @@ public class TableImpl implements Table {
         }
     }
 
-    public static Table create(String tableName,
-                               Path pathToDatabaseRoot,
-                               TableIndex tableIndex) throws DatabaseException {
-
-        Path fullPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
+    public static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         try {
-            Files.createDirectory(fullPath);
+            return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
         } catch (IOException e) {
-            throw new DatabaseException("Exception while creating stream for path - " + fullPath, e);
+            throw new DatabaseException("Table creation error", e);
         }
+    }
 
-        Table table = new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
-
-        return CachingTable.builder()
-                .table(table)
-                .build();
+    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws IOException {
+        name = tableName;
+        tableRootPath = pathToDatabaseRoot;
+        this.tableIndex = tableIndex;
+        Path beforeCreationPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
+        Files.createDirectory(beforeCreationPath);
+        this.tableRootPath = beforeCreationPath;
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
@@ -110,6 +100,7 @@ public class TableImpl implements Table {
 
         try {
             currentSegment.delete(objectKey);
+            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
         } catch (IOException exc) {
             throw new DatabaseException("Exception while writing RemoveDbRecord in - " + currentSegment, exc);
         }
