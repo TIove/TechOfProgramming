@@ -91,7 +91,7 @@ public class SegmentInitializer implements Initializer {
 
             var currentSegmentContext = new SegmentInitializationContextImpl(
                     segmentName,
-                    tableFullPath,
+                    segmentFullPath,
                     (int) currentOffset,
                     segmentIndex);
 
