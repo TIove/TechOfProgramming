@@ -43,6 +43,7 @@ public class TableImpl implements Table {
     public static Table create(String tableName,
                                Path pathToDatabaseRoot,
                                TableIndex tableIndex) throws DatabaseException {
+
         Path fullPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
         try {
             Files.createDirectory(fullPath);
@@ -50,7 +51,7 @@ public class TableImpl implements Table {
             throw new DatabaseException("Exception while creating stream for path - " + fullPath, e);
         }
 
-        Table table = new TableImpl(tableName, fullPath, tableIndex);
+        Table table = new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
 
         return CachingTable.builder()
                 .table(table)
@@ -80,8 +81,8 @@ public class TableImpl implements Table {
         try {
             validateOrCreateNewSegment();
 
-            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
             currentSegment.write(objectKey, objectValue);
+            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
 
         } catch (IOException exc) {
             throw new DatabaseException("Exception while writing new data", exc);
@@ -91,6 +92,7 @@ public class TableImpl implements Table {
     @Override
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         Optional<Segment> segment = tableIndex.searchForKey(objectKey);
+
         try {
             if (segment.isPresent()) {
                 return segment.get().read(objectKey);
@@ -104,15 +106,10 @@ public class TableImpl implements Table {
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
-        if (tableIndex.searchForKey(objectKey).isEmpty()) {
-            throw new DatabaseException("Key - " + objectKey + " wasn't used");
-        }
-
         validateOrCreateNewSegment();
 
         try {
             currentSegment.delete(objectKey);
-            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
         } catch (IOException exc) {
             throw new DatabaseException("Exception while writing RemoveDbRecord in - " + currentSegment, exc);
         }
