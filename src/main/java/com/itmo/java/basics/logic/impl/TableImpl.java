@@ -3,7 +3,10 @@ package com.itmo.java.basics.logic.impl;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.impl.TableIndex;
 import com.itmo.java.basics.logic.Segment;
+import com.itmo.java.basics.initialization.TableInitializationContext;
 import com.itmo.java.basics.logic.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,20 +15,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class TableImpl implements Table {
     private final String name;
-    private final Path tableRootPath;
+    private Path tableRootPath;
     private final TableIndex tableIndex;
     private Segment currentSegment;
-
-    private TableImpl(
-            String tableName,
-            Path tableRootPath,
-            TableIndex tableIndex) {
-        this.name = tableName;
-        this.tableRootPath = tableRootPath;
-        this.tableIndex = tableIndex;
-    }
 
     private void validateOrCreateNewSegment() throws DatabaseException {
         if (currentSegment == null || currentSegment.isReadOnly()) {
@@ -34,17 +30,34 @@ public class TableImpl implements Table {
         }
     }
 
-    static Table create(String tableName,
-                        Path pathToDatabaseRoot,
-                        TableIndex tableIndex) throws DatabaseException {
-        Path fullPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
+    public static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
         try {
-            Files.createDirectory(fullPath);
+            return new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
         } catch (IOException e) {
-            throw new DatabaseException("Exception while creating stream for path - " + fullPath.toString(), e);
+            throw new DatabaseException("Table creation error", e);
         }
+    }
 
-        return new TableImpl(tableName, fullPath, tableIndex);
+    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws IOException {
+        name = tableName;
+        tableRootPath = pathToDatabaseRoot;
+        this.tableIndex = tableIndex;
+        Path beforeCreationPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
+        Files.createDirectory(beforeCreationPath);
+        this.tableRootPath = beforeCreationPath;
+    }
+
+    public static Table initializeFromContext(TableInitializationContext context) {
+        TableIndex tableIndex = context.getTableIndex();
+        Segment currentSegment = context.getCurrentSegment();
+        String tableName = context.getTableName();
+        Path tablePath = context.getTablePath();
+
+        Table table = new TableImpl(tableName, tablePath, tableIndex, currentSegment);
+
+        return CachingTable.builder()
+                .table(table)
+                .build();
     }
 
     @Override
@@ -57,8 +70,8 @@ public class TableImpl implements Table {
         try {
             validateOrCreateNewSegment();
 
-            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
             currentSegment.write(objectKey, objectValue);
+            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
 
         } catch (IOException exc) {
             throw new DatabaseException("Exception while writing new data", exc);
@@ -68,6 +81,7 @@ public class TableImpl implements Table {
     @Override
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
         Optional<Segment> segment = tableIndex.searchForKey(objectKey);
+
         try {
             if (segment.isPresent()) {
                 return segment.get().read(objectKey);
@@ -81,15 +95,10 @@ public class TableImpl implements Table {
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
-        if (tableIndex.searchForKey(objectKey).isEmpty()) {
-            throw new DatabaseException("Key - " + objectKey + " wasn't used");
-        }
-
         validateOrCreateNewSegment();
 
         try {
             currentSegment.delete(objectKey);
-            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
         } catch (IOException exc) {
             throw new DatabaseException("Exception while writing RemoveDbRecord in - " + currentSegment, exc);
         }

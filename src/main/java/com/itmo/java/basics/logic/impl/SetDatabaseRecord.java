@@ -25,15 +25,15 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
     public long size() {
         final int INT_SIZE = 4;
 
-        return key.length +
-                value.length +
-                INT_SIZE +
-                INT_SIZE;
+        if (value == null || key == null) {
+            return INT_SIZE + 8 + INT_SIZE + 8;
+        }
+        return INT_SIZE + key.length + INT_SIZE + value.length;
     }
 
     @Override
     public boolean isValuePresented() {
-        return value != null;
+        return value != null && value.length != 0;
     }
 
     @Override
@@ -43,6 +43,10 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
 
     @Override
     public int getValueSize() {
+        if (value == null || value.length == 0) {
+            return -1;
+        }
+
         return value.length;
     }
 }

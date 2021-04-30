@@ -8,6 +8,7 @@ import java.io.*;
  * Записывает данные в БД
  */
 public class DatabaseOutputStream extends DataOutputStream {
+
     public DatabaseOutputStream(OutputStream outputStream) {
         super(outputStream);
     }
@@ -38,7 +39,7 @@ public class DatabaseOutputStream extends DataOutputStream {
 
         byte[] value = databaseRecord.getValue();
 
-        if (value != null) {
+        if (databaseRecord.isValuePresented()) {
             this.write(value);
         }
 

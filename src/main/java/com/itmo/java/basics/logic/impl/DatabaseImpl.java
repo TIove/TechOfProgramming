@@ -2,8 +2,11 @@ package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.basics.index.impl.TableIndex;
+import com.itmo.java.basics.initialization.DatabaseInitializationContext;
 import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,15 +17,18 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+@Builder
+@AllArgsConstructor
 public class DatabaseImpl implements Database {
     private final String name;
-    private final Path pathToDatabaseRoot;
-    private final Map<String, Table> tables = new HashMap<>();
-    private final Map<String, TableIndex> tableIndexMap = new HashMap<>();
+    private final Path databaseRoot;
 
-    private DatabaseImpl(String dbName, Path pathToDatabaseRoot) {
+    private final Map<String, Table> tables;
+
+    private DatabaseImpl(String dbName, Path databaseRoot) {
         this.name = dbName;
-        this.pathToDatabaseRoot = pathToDatabaseRoot;
+        this.databaseRoot = databaseRoot;
+        this.tables = new HashMap<>();
     }
 
     public static Database create(String dbName, Path databaseRoot) throws DatabaseException {
@@ -41,6 +47,23 @@ public class DatabaseImpl implements Database {
         return new DatabaseImpl(dbName, fullPath);
     }
 
+    public static Database initializeFromContext(DatabaseInitializationContext context) {
+        Map<String, Table> tablesMap = context.getTables();
+
+        if (tablesMap == null) {
+            tablesMap = new HashMap<>();
+        }
+
+        String name = context.getDbName();
+        Path databasePath = context.getDatabasePath();
+
+        return DatabaseImpl.builder()
+                .name(name)
+                .databaseRoot(databasePath)
+                .tables(tablesMap)
+                .build();
+    }
+
     @Override
     public String getName() {
         return name;
@@ -56,41 +79,45 @@ public class DatabaseImpl implements Database {
             throw new DatabaseException("Table name - " + tableName + " already exists");
         }
 
-        TableIndex currentTableIndex = new TableIndex();
+        try {
+            TableIndex currentTableIndex = new TableIndex();
+            Table newTable = TableImpl.create(tableName, databaseRoot, currentTableIndex);
 
-        tableIndexMap.put(tableName, currentTableIndex);
-        tables.put(tableName, TableImpl.create(tableName, pathToDatabaseRoot, currentTableIndex));
+            tables.put(tableName, newTable);
+        } catch (DatabaseException e) {
+            throw new DatabaseException("Can not create table with name " + tableName, e);
+        }
     }
 
     @Override
     public void write(String tableName, String objectKey, byte[] objectValue) throws DatabaseException {
-        var table = tables.get(tableName);
-
-        if (table == null) {
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
+
+        var table = tables.get(tableName);
 
         table.write(objectKey, objectValue);
     }
 
     @Override
     public Optional<byte[]> read(String tableName, String objectKey) throws DatabaseException {
-        var table = tables.get(tableName);
-
-        if (table == null) {
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
+
+        var table = tables.get(tableName);
 
         return table.read(objectKey);
     }
 
     @Override
     public void delete(String tableName, String objectKey) throws DatabaseException {
-        var table = tables.get(tableName);
-
-        if (table == null) {
+        if (!tables.containsKey(tableName)) {
             throw new DatabaseException("Table " + tableName + " doesn't exist");
         }
+
+        var table = tables.get(tableName);
 
         table.delete(objectKey);
     }
