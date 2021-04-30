@@ -20,26 +20,41 @@ import java.util.Optional;
 @AllArgsConstructor
 public class TableImpl implements Table {
     private final String name;
-    private Path path;
-    private final TableIndex index;
-    private Segment lastSegment = null;
+    private final Path tableRootPath;
+    private final TableIndex tableIndex;
+    private Segment currentSegment;
 
-    public static Table create(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws DatabaseException {
-        try {
-            Table table = new TableImpl(tableName, pathToDatabaseRoot, tableIndex);
-            return table;
-        } catch (IOException e) {
-            throw new DatabaseException("Table creation error", e);
+    private TableImpl(
+            String tableName,
+            Path tableRootPath,
+            TableIndex tableIndex) {
+        this.name = tableName;
+        this.tableRootPath = tableRootPath;
+        this.tableIndex = tableIndex;
+    }
+
+    private void validateOrCreateNewSegment() throws DatabaseException {
+        if (currentSegment == null || currentSegment.isReadOnly()) {
+            var segmentName = SegmentImpl.createSegmentName(name);
+            currentSegment = SegmentImpl.create(segmentName, tableRootPath);
         }
     }
 
-    private TableImpl(String tableName, Path pathToDatabaseRoot, TableIndex tableIndex) throws IOException {
-        name = tableName;
-        path = pathToDatabaseRoot;
-        index = tableIndex;
-        Path beforeCreationPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
-        Files.createDirectory(beforeCreationPath);
-        path = beforeCreationPath;
+    public static Table create(String tableName,
+                               Path pathToDatabaseRoot,
+                               TableIndex tableIndex) throws DatabaseException {
+        Path fullPath = Paths.get(pathToDatabaseRoot.toString() + File.separator + tableName);
+        try {
+            Files.createDirectory(fullPath);
+        } catch (IOException e) {
+            throw new DatabaseException("Exception while creating stream for path - " + fullPath, e);
+        }
+
+        Table table = new TableImpl(tableName, fullPath, tableIndex);
+
+        return CachingTable.builder()
+                .table(table)
+                .build();
     }
 
     public static Table initializeFromContext(TableInitializationContext context) {
@@ -60,45 +75,46 @@ public class TableImpl implements Table {
         return name;
     }
 
-    public void makeLastSegmentActual() throws DatabaseException {
-        if (lastSegment == null || lastSegment.isReadOnly()) {
-            lastSegment = SegmentImpl.create(SegmentImpl.createSegmentName(name), path);
-        }
-    }
-
     @Override
     public void write(String objectKey, byte[] objectValue) throws DatabaseException {
-        makeLastSegmentActual();
         try {
-            lastSegment.write(objectKey, objectValue);
-            index.onIndexedEntityUpdated(objectKey, lastSegment);
+            validateOrCreateNewSegment();
 
-        } catch (IOException e) {
-            throw new DatabaseException("Table " + name + " write error: " + e.getMessage(), e);
+            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
+            currentSegment.write(objectKey, objectValue);
+
+        } catch (IOException exc) {
+            throw new DatabaseException("Exception while writing new data", exc);
         }
     }
 
     @Override
     public Optional<byte[]> read(String objectKey) throws DatabaseException {
-        var segment = index.searchForKey(objectKey);
-        if (segment.isEmpty())
-            return Optional.empty();
+        Optional<Segment> segment = tableIndex.searchForKey(objectKey);
         try {
-            return segment.get().read(objectKey);
-        } catch (IOException e) {
-            throw new DatabaseException("Can not read from segment: " + segment.get().getName() + " with error: "
-                    + e.getMessage());
+            if (segment.isPresent()) {
+                return segment.get().read(objectKey);
+            } else {
+                return Optional.empty();
+            }
+        } catch (IOException exc) {
+            throw new DatabaseException("Exception while reading from segment - " + segment.get().getName(), exc);
         }
     }
 
     @Override
     public void delete(String objectKey) throws DatabaseException {
-        makeLastSegmentActual();
+        if (tableIndex.searchForKey(objectKey).isEmpty()) {
+            throw new DatabaseException("Key - " + objectKey + " wasn't used");
+        }
+
+        validateOrCreateNewSegment();
+
         try {
-            lastSegment.delete(objectKey);
-        } catch (IOException e) {
-            throw new DatabaseException("Can not delete from segment: " + lastSegment.getName() + " with error: "
-                    + e.getMessage());
+            currentSegment.delete(objectKey);
+            tableIndex.onIndexedEntityUpdated(objectKey, currentSegment);
+        } catch (IOException exc) {
+            throw new DatabaseException("Exception while writing RemoveDbRecord in - " + currentSegment, exc);
         }
     }
 }
