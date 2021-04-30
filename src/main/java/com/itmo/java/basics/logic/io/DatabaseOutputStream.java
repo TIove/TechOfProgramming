@@ -39,7 +39,7 @@ public class DatabaseOutputStream extends DataOutputStream {
 
         byte[] value = databaseRecord.getValue();
 
-        if (value != null) {
+        if (databaseRecord.isValuePresented()) {
             this.write(value);
         }
 

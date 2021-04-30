@@ -25,10 +25,10 @@ public class SetDatabaseRecord implements WritableDatabaseRecord {
     public long size() {
         final int INT_SIZE = 4;
 
-        return key.length +
-                value.length +
-                INT_SIZE +
-                INT_SIZE;
+        if (value == null || key == null) {
+            return INT_SIZE + 8 + INT_SIZE + 8;
+        }
+        return INT_SIZE + key.length + INT_SIZE + value.length;
     }
 
     @Override
