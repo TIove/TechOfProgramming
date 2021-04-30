@@ -28,6 +28,5 @@ public class DatabaseCacheImpl implements DatabaseCache {
 
     @Override
     public void delete(String key) {
-        this.map.remove(key);
     }
 }
