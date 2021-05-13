@@ -2,16 +2,23 @@ package com.itmo.java.basics.logic.impl;
 
 import com.itmo.java.basics.logic.DatabaseCache;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class DatabaseCacheImpl implements DatabaseCache {
     private final int capacity;
-    private final LinkedHashMap<String, byte[]> map;
+    private final HashMap<String, byte[]> map;
 
     public DatabaseCacheImpl(int capacity) {
         this.capacity = capacity;
-        this.map = new LinkedHashMap<>(capacity, 1, true);
+        this.map = new LinkedHashMap<>(capacity, 1, true) {
+            @Override
+            protected boolean removeEldestEntry(Map.Entry<String, byte[]> eldest) {
+                return capacity <= size();
+            }
+        };
     }
 
     @Override
