@@ -7,6 +7,9 @@ import lombok.Builder;
 
 import java.util.Optional;
 
+/**
+ * Декоратор для таблицы. Кэширует данные
+ */
 @Builder
 @AllArgsConstructor
 public class CachingTable implements Table {

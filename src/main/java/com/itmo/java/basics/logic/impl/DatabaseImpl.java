@@ -20,6 +20,10 @@ import java.util.Optional;
 @Builder
 @AllArgsConstructor
 public class DatabaseImpl implements Database {
+    /**
+     * @param databaseRoot путь к директории, которая может содержать несколько БД,
+     *                     поэтому при создании БД необходимо создать директорию внутри databaseRoot.
+     */
     private final String name;
     private final Path databaseRoot;
 

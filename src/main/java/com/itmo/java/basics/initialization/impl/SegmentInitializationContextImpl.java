@@ -33,6 +33,10 @@ public class SegmentInitializationContextImpl implements SegmentInitializationCo
         this.index = new SegmentIndex();
     }
 
+    public SegmentInitializationContextImpl(String segmentName, Path tablePath) {
+        this(segmentName, tablePath.resolve(segmentName), 0, new SegmentIndex());
+    }
+
     @Override
     public String getSegmentName() {
         return this.segmentName;

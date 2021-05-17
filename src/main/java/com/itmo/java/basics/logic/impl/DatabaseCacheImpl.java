@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class DatabaseCacheImpl implements DatabaseCache {
+    private static final int CAPACITY = 5_000;
+
     private final int capacity;
     private final HashMap<String, byte[]> map;
 
