@@ -39,8 +39,10 @@ public class DatabaseInputStream extends DataInputStream {
             byte[] value = this.in.readNBytes(valueLength);
 
             return Optional.of(new SetDatabaseRecord(key, value));
+        } catch (IOException ioexc) {
+            throw ioexc;
         } catch (Exception exc) {
-            throw new IOException();
+            return Optional.empty();
         }
     }
 }
