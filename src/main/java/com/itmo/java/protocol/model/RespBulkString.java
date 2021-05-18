@@ -1,5 +1,6 @@
 package com.itmo.java.protocol.model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -47,15 +48,20 @@ public class RespBulkString implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        String response;
-        final String crlfStr = new String(CRLF, StandardCharsets.UTF_8);
+        ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
         if (data == null || data.length == 0) {
-            response = CODE + NULL_STRING_SIZE + crlfStr;
+            stream.write(CODE);
+            stream.write(NULL_STRING_SIZE);
+            stream.write(CRLF);
         } else {
-            response = CODE + data.length + crlfStr + Arrays.toString(data) + crlfStr;
+            stream.write(CODE);
+            stream.write(data.length);
+            stream.write(CRLF);
+            stream.write(data);
+            stream.write(CRLF);
         }
 
-        os.write(response.getBytes(StandardCharsets.UTF_8));
+        stream.writeTo(os);
     }
 }
