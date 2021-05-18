@@ -34,7 +34,7 @@ public class RespCommandId implements RespObject {
 
     @Override
     public String asString() {
-        return String.valueOf(commandId);
+        return Integer.toString(commandId);
     }
 
     @Override

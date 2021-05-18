@@ -24,7 +24,7 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
             return null;
         }
 
-        return new String(payload, StandardCharsets.UTF_8);
+        return new String(payload);
     }
 
     @Override
