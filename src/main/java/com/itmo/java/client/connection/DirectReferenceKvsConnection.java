@@ -28,7 +28,7 @@ public class DirectReferenceKvsConnection implements KvsConnection {
 
         DatabaseCommandResult result;
         try {
-            result = databaseServer.executeNextCommand(newCommand).get();
+            result = databaseServer.executeNextCommand(command).get();
         } catch( InterruptedException | ExecutionException exception) {
             throw new ConnectionException("Cannot read answer", exception);
         }
