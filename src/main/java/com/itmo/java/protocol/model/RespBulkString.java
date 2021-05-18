@@ -43,25 +43,21 @@ public class RespBulkString implements RespObject {
         if (data.length == 0)
             return null;
 
-        return new String(data, StandardCharsets.UTF_8);
+        return new String(data);
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        os.write(CODE);
 
-        if (data == null || data.length == 0) {
-            stream.write(CODE);
-            stream.write(NULL_STRING_SIZE);
-            stream.write(CRLF);
-        } else {
-            stream.write(CODE);
-            stream.write(Integer.toString(data.length).getBytes());
-            stream.write(CRLF);
-            stream.write(data);
-            stream.write(CRLF);
+        if(data == null) {
+            os.write(Integer.toString(NULL_STRING_SIZE).getBytes());
         }
-
-        stream.writeTo(os);
+        else {
+            os.write(Integer.toString(data.length).getBytes());
+            os.write(CRLF);
+            os.write(data);
+        }
+        os.write(CRLF);
     }
 }

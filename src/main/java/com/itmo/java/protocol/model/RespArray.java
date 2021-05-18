@@ -44,6 +44,7 @@ public class RespArray implements RespObject {
 
         for (RespObject object : objects) {
             response.append(object.asString());
+            response.append(" ");
         }
 
         return response.toString();
@@ -51,18 +52,16 @@ public class RespArray implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        stream.write(CODE);
-        stream.write(Integer.toString(objects.length).getBytes());
-        stream.write(CRLF);
+        os.write(CODE);
+        os.write(Integer.toString(objects.length).getBytes());
+        os.write(CRLF);
 
-        stream.writeTo(os);
         for (RespObject object : objects) {
             object.write(os);
         }
     }
 
     public List<RespObject> getObjects() {
-        return Arrays.asList(objects);
+        return List.of(objects);
     }
 }

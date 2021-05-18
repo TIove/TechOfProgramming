@@ -34,17 +34,13 @@ public class RespError implements RespObject {
 
     @Override
     public String asString() {
-        return new String(message, StandardCharsets.UTF_8);
+        return new String(message);
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-
-        stream.write(CODE);
-        stream.write(message);
-        stream.write(CRLF);
-
-        stream.writeTo(os);
+        os.write(CODE);
+        os.write(message);
+        os.write(CRLF);
     }
 }

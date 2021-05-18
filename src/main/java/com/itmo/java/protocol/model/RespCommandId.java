@@ -39,11 +39,8 @@ public class RespCommandId implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        stream.write(CODE);
-        stream.write(Integer.toString(commandId).getBytes());
-        stream.write(CRLF);
-
-        stream.writeTo(os);
+        os.write(CODE);
+        os.write(Integer.toString(commandId).getBytes());
+        os.write(CRLF);
     }
 }
