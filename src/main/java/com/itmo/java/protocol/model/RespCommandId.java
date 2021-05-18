@@ -43,8 +43,7 @@ public class RespCommandId implements RespObject {
 
         if (commandId >= 0) {
             os.write(Integer.toString(commandId).getBytes());
+            os.write(CRLF);
         }
-
-        os.write(CRLF);
     }
 }

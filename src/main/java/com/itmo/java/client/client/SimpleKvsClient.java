@@ -33,7 +33,7 @@ public class SimpleKvsClient implements KvsClient {
         try {
             result = connectionSupplier.get().send(command.getCommandId(), command.serialize());
         } catch (ConnectionException exc) {
-            throw new DatabaseExecutionException("Exception appears while of creating database ", exc);
+            throw new DatabaseExecutionException("Exception appears while of creating database", exc);
         }
 
         if (result.isError())  {

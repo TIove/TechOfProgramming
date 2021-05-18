@@ -24,7 +24,7 @@ public class DirectReferenceKvsConnection implements KvsConnection {
 
     @Override
     public RespObject send(int commandId, RespArray command) throws ConnectionException {
-        RespArray newCommand = new RespArray(new RespCommandId(commandId), command);
+//        RespArray newCommand = new RespArray(new RespCommandId(commandId), command);
 
         DatabaseCommandResult result;
         try {
