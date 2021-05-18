@@ -1,6 +1,7 @@
 package com.itmo.java.protocol.model;
 
 import java.io.ByteArrayOutputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -52,9 +53,10 @@ public class RespArray implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        os.write(CODE);
-        os.write(Integer.toString(objects.length).getBytes());
-        os.write(CRLF);
+        DataOutputStream out = new DataOutputStream(os);
+        out.write(CODE);
+        out.writeInt(objects.length);
+        out.write(CRLF);
 
         for (RespObject object : objects) {
             object.write(os);
