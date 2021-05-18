@@ -3,6 +3,7 @@ package com.itmo.java.protocol.model;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -42,7 +43,9 @@ public class RespCommandId implements RespObject {
         os.write(CODE);
 
         if (commandId >= 0) {
-            os.write(Integer.toString(commandId).getBytes());
+            ByteBuffer byteBuffer = ByteBuffer.allocate(4);
+            byteBuffer.putInt(commandId);
+            os.write(byteBuffer.array());
             os.write(CRLF);
         }
     }
