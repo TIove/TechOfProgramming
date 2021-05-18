@@ -50,7 +50,7 @@ public class RespBulkString implements RespObject {
         String response;
         final String crlfStr = new String(CRLF, StandardCharsets.UTF_8);
 
-        if (data == null) {
+        if (data == null || data.length == 0) {
             response = CODE + NULL_STRING_SIZE + crlfStr;
         } else {
             response = CODE + data.length + crlfStr + Arrays.toString(data) + crlfStr;

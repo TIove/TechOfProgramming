@@ -20,6 +20,10 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
 
     @Override
     public String getPayLoad() {
+        if (payload == null) {
+            return null;
+        }
+
         return new String(payload, StandardCharsets.UTF_8);
     }
 
