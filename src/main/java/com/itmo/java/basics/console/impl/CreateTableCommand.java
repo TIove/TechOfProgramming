@@ -4,14 +4,22 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 /**
  * Команда для создания базы таблицы
  */
 public class CreateTableCommand implements DatabaseCommand {
+
+    private final ExecutionEnvironment environment;
+    public final String id;
+    public final String commandName;
+    private final String databaseName;
+    private final String tableName;
 
     /**
      * Создает команду
@@ -24,7 +32,24 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        //TODO implement
+        if (commandArgs.size() == 4) {
+            this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
+            this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
+            this.databaseName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+            this.tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
+
+            this.environment = env;
+
+            if (this.id == null ||
+                    this.commandName == null ||
+                    this.databaseName == null ||
+                    this.tableName == null ||
+                    this.environment == null) {
+                throw new IllegalArgumentException("One or few arguments are null");
+            }
+        } else {
+            throw new IllegalArgumentException("Incorrect argument count");
+        }
     }
 
     /**
@@ -34,7 +59,16 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        try {
+            if (environment.getDatabase(databaseName).isEmpty())
+                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist"); //TODO hz
+
+            environment.getDatabase(databaseName).get().createTableIfNotExists(tableName); // TODO hz
+
+            return DatabaseCommandResult
+                    .success(("Table " + tableName + " in database " + databaseName + " created").getBytes(StandardCharsets.UTF_8));
+        } catch (DatabaseException exc) {
+            return DatabaseCommandResult.error(exc);
+        }
     }
 }
