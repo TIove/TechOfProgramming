@@ -1,7 +1,6 @@
 package com.itmo.java.protocol.model;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
@@ -40,12 +39,11 @@ public class RespCommandId implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        DataOutputStream out = new DataOutputStream(os);
-        out.write(CODE);
+        os.write(CODE);
 
         if (commandId >= 0) {
-            out.writeInt(commandId);
-            out.write(CRLF);
+            os.write(Integer.toString(commandId).getBytes());
+            os.write(CRLF);
         }
     }
 }
