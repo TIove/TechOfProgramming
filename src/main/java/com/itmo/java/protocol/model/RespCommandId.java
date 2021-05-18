@@ -42,15 +42,8 @@ public class RespCommandId implements RespObject {
         os.write(CODE);
 
         if (commandId >= 0) {
-            writeInt(commandId, os);
+            os.write(Integer.toString(commandId).getBytes());
             os.write(CRLF);
         }
-    }
-
-    private void writeInt(int v, OutputStream out) throws IOException {
-        out.write((v >>> 24) & 0xFF);
-        out.write((v >>> 16) & 0xFF);
-        out.write((v >>>  8) & 0xFF);
-        out.write((v >>>  0) & 0xFF);
     }
 }
