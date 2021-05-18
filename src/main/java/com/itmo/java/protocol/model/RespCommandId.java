@@ -39,13 +39,12 @@ public class RespCommandId implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
+        os.write(CODE);
 
         if (commandId >= 0) {
-            os.write(CODE);
             os.write(Integer.toString(commandId).getBytes());
-            os.write(CRLF);
-        } else {
-            throw new IOException();
         }
+
+        os.write(CRLF);
     }
 }
