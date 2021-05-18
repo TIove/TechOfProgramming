@@ -56,7 +56,7 @@ public class RespBulkString implements RespObject {
             stream.write(CRLF);
         } else {
             stream.write(CODE);
-            stream.write(data.length);
+            stream.write(Integer.toString(data.length).getBytes());
             stream.write(CRLF);
             stream.write(data);
             stream.write(CRLF);

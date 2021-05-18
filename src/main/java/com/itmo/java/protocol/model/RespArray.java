@@ -53,7 +53,7 @@ public class RespArray implements RespObject {
     public void write(OutputStream os) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
         stream.write(CODE);
-        stream.write(objects.length);
+        stream.write(Integer.toString(objects.length).getBytes());
         stream.write(CRLF);
 
         stream.writeTo(os);

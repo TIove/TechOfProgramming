@@ -41,14 +41,9 @@ public class RespError implements RespObject {
     public void write(OutputStream os) throws IOException {
         ByteArrayOutputStream stream = new ByteArrayOutputStream();
 
-        if (message == null || message.length == 0) {
-            stream.write(CODE);
-            stream.write(CRLF);
-        } else {
-            stream.write(CODE);
-            stream.write(message);
-            stream.write(CRLF);
-        }
+        stream.write(CODE);
+        stream.write(message);
+        stream.write(CRLF);
 
         stream.writeTo(os);
     }
