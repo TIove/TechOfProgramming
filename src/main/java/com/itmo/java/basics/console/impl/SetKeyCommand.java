@@ -72,7 +72,7 @@ public class SetKeyCommand implements DatabaseCommand {
 
             Optional<byte[]> previousValue = environment.getDatabase(databaseName).get().read(tableName, key);
 
-            environment.getDatabase(databaseName).get().write(tableName, key, value.getBytes(StandardCharsets.UTF_8)); // TODO hz
+            environment.getDatabase(databaseName).get().write(tableName, key, value.getBytes()); // TODO hz
 
             if (previousValue.isPresent()) {
                 return DatabaseCommandResult.success(previousValue.get());

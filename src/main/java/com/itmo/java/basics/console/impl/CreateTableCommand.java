@@ -66,7 +66,7 @@ public class CreateTableCommand implements DatabaseCommand {
             environment.getDatabase(databaseName).get().createTableIfNotExists(tableName); // TODO hz
 
             return DatabaseCommandResult
-                    .success(("Table " + tableName + " in database " + databaseName + " created").getBytes(StandardCharsets.UTF_8));
+                    .success(("Table " + tableName + " in database " + databaseName + " created").getBytes());
         } catch (DatabaseException exc) {
             return DatabaseCommandResult.error(exc);
         }

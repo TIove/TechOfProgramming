@@ -69,7 +69,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
             environment.addDatabase(database);
 
             return DatabaseCommandResult
-                    .success(("Database " + databaseName + " created").getBytes(StandardCharsets.UTF_8));
+                    .success(("Database " + databaseName + " created").getBytes());
         } catch (DatabaseException exc) {
             return DatabaseCommandResult.error(exc);
         }
