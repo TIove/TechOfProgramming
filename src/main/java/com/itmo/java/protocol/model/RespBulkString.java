@@ -51,13 +51,20 @@ public class RespBulkString implements RespObject {
         os.write(CODE);
 
         if(data == null) {
-            os.write(Integer.toString(NULL_STRING_SIZE).getBytes());
+            writeInt(NULL_STRING_SIZE, os);
         }
         else {
-            os.write(Integer.toString(data.length).getBytes());
+            writeInt(data.length, os);
             os.write(CRLF);
             os.write(data);
         }
         os.write(CRLF);
+    }
+
+    private void writeInt(int v, OutputStream out) throws IOException {
+        out.write((v >>> 24) & 0xFF);
+        out.write((v >>> 16) & 0xFF);
+        out.write((v >>>  8) & 0xFF);
+        out.write((v >>>  0) & 0xFF);
     }
 }
