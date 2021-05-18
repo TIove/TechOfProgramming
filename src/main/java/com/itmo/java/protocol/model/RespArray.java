@@ -47,7 +47,7 @@ public class RespArray implements RespObject {
             response.append(" ");
         }
 
-        return response.toString();
+        return response.toString().trim();
     }
 
     @Override
