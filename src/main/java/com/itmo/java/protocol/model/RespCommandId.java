@@ -40,7 +40,10 @@ public class RespCommandId implements RespObject {
     @Override
     public void write(OutputStream os) throws IOException {
         os.write(CODE);
-        os.write(Integer.toString(commandId).getBytes());
+        if (commandId >= 0)
+            os.write(Integer.toString(commandId).getBytes());
+        else
+            throw new IOException();
         os.write(CRLF);
     }
 }
