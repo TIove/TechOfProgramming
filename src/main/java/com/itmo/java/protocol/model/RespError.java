@@ -38,7 +38,7 @@ public class RespError implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        String str = CODE + Arrays.toString(message) + Arrays.toString(CRLF);
+        String str = CODE + Arrays.toString(message) + new String(CRLF, StandardCharsets.UTF_8);
 
         os.write(str.getBytes(StandardCharsets.UTF_8));
     }

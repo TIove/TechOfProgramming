@@ -38,7 +38,7 @@ public class RespCommandId implements RespObject {
 
     @Override
     public void write(OutputStream os) throws IOException {
-        String str = CODE + commandId + Arrays.toString(CRLF);
+        String str = CODE + commandId + new String(CRLF, StandardCharsets.UTF_8);
 
         os.write(str.getBytes(StandardCharsets.UTF_8));
     }

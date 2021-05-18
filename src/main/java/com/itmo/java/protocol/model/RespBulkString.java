@@ -48,11 +48,12 @@ public class RespBulkString implements RespObject {
     @Override
     public void write(OutputStream os) throws IOException {
         String response;
+        final String crlfStr = new String(CRLF, StandardCharsets.UTF_8);
 
-        if (data == null || data.length == 0) {
-            response = CODE + NULL_STRING_SIZE + Arrays.toString(CRLF);
+        if (data == null) {
+            response = CODE + NULL_STRING_SIZE + crlfStr;
         } else {
-            response = CODE + data.length + Arrays.toString(CRLF) + Arrays.toString(data) + Arrays.toString(CRLF);
+            response = CODE + data.length + crlfStr + Arrays.toString(data) + crlfStr;
         }
 
         os.write(response.getBytes(StandardCharsets.UTF_8));
