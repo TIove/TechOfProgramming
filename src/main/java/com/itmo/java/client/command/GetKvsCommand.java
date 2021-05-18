@@ -31,10 +31,10 @@ public class GetKvsCommand implements KvsCommand {
     public RespArray serialize() {
         return new RespArray(
                 new RespCommandId(getCommandId()),
-                new RespBulkString(COMMAND_NAME.getBytes(StandardCharsets.UTF_8)),
-                new RespBulkString(databaseName.getBytes(StandardCharsets.UTF_8)),
-                new RespBulkString(tableName.getBytes(StandardCharsets.UTF_8)),
-                new RespBulkString(key.getBytes(StandardCharsets.UTF_8)));
+                new RespBulkString(COMMAND_NAME.getBytes()),
+                new RespBulkString(databaseName.getBytes()),
+                new RespBulkString(tableName.getBytes()),
+                new RespBulkString(key.getBytes()));
     }
 
     @Override
