@@ -64,7 +64,9 @@ public class CreateDatabaseCommand implements DatabaseCommand {
     @Override
     public DatabaseCommandResult execute() {
         try {
-            factory.createNonExistent(databaseName, environment.getWorkingPath());
+            var database = factory.createNonExistent(databaseName, environment.getWorkingPath());
+
+            environment.addDatabase(database);
 
             return DatabaseCommandResult
                     .success(("Database " + databaseName + " created").getBytes(StandardCharsets.UTF_8));
