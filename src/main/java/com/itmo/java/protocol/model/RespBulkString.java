@@ -42,7 +42,7 @@ public class RespBulkString implements RespObject {
         if (data.length == 0)
             return null;
 
-        return Arrays.toString(data);
+        return new String(data, StandardCharsets.UTF_8);
     }
 
     @Override

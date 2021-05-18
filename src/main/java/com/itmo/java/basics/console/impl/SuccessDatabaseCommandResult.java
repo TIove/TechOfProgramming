@@ -4,6 +4,7 @@ import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.protocol.model.RespBulkString;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
 /**
@@ -19,7 +20,7 @@ public class SuccessDatabaseCommandResult implements DatabaseCommandResult {
 
     @Override
     public String getPayLoad() {
-        return Arrays.toString(payload);
+        return new String(payload, StandardCharsets.UTF_8);
     }
 
     @Override

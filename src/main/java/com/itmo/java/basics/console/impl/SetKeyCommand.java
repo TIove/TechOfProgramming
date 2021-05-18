@@ -35,7 +35,7 @@ public class SetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public SetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.size() == 5) {
+        if (commandArgs.size() == 6) {
             this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
             this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
             this.databaseName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
