@@ -33,6 +33,10 @@ public class GetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public GetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
+        if (commandArgs.contains(null)) {
+            throw new IllegalArgumentException("One or few arguments are null");
+        }
+
         if (commandArgs.size() == 5) {
             this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
             this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
@@ -41,15 +45,6 @@ public class GetKeyCommand implements DatabaseCommand {
             this.key = commandArgs.get(DatabaseCommandArgPositions.KEY.getPositionIndex()).asString();
 
             this.environment = env;
-
-            if (this.id == null ||
-                    this.commandName == null ||
-                    this.databaseName == null ||
-                    this.tableName == null ||
-                    this.environment == null ||
-                    this.key == null) {
-                throw new IllegalArgumentException("One or few arguments are null");
-            }
         } else {
             throw new IllegalArgumentException("Incorrect argument count");
         }

@@ -36,6 +36,10 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
+        if (commandArgs.contains(null)) {
+            throw new IllegalArgumentException("One or few arguments are null");
+        }
+
         if (commandArgs.size() == 3) {
             this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
             this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
@@ -43,14 +47,6 @@ public class CreateDatabaseCommand implements DatabaseCommand {
 
             this.environment = env;
             this.factory = factory;
-
-            if (this.id == null ||
-                    this.commandName == null ||
-                    this.databaseName == null ||
-                    this.environment == null ||
-                    this.factory == null) {
-                throw new IllegalArgumentException("One or few arguments are null");
-            }
         } else {
             throw new IllegalArgumentException("Incorrect argument count");
         }
