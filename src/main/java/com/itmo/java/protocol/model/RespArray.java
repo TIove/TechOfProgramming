@@ -1,11 +1,9 @@
 package com.itmo.java.protocol.model;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Массив RESP объектов
@@ -17,10 +15,10 @@ public class RespArray implements RespObject {
      */
     public static final byte CODE = '*';
 
-    private final RespObject[] objects;
+    private final List<RespObject> objects;
 
     public RespArray(RespObject... objects) {
-        this.objects = objects;
+        this.objects = List.of(objects);
     }
 
     /**
@@ -40,20 +38,13 @@ public class RespArray implements RespObject {
      */
     @Override
     public String asString() {
-        StringBuilder response = new StringBuilder();
-
-        for (RespObject object : objects) {
-            response.append(object.asString());
-            response.append(" ");
-        }
-
-        return response.toString().trim();
+        return objects.stream().map(RespObject::asString).collect(Collectors.joining(" "));
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
         os.write(CODE);
-        os.write(Integer.toString(objects.length).getBytes());
+        os.write(Integer.toString(objects.size()).getBytes());
         os.write(CRLF);
 
         for (RespObject object : objects) {
@@ -62,6 +53,6 @@ public class RespArray implements RespObject {
     }
 
     public List<RespObject> getObjects() {
-        return List.of(objects);
+        return objects;
     }
 }
