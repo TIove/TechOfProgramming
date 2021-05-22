@@ -45,7 +45,7 @@ public class SetKeyCommand implements DatabaseCommand {
 
             this.environment = env;
 
-            if (commandArgs.stream().map(RespObject::asString).noneMatch(Objects::isNull) || this.environment == null) {
+            if (commandArgs.stream().map(RespObject::asString).anyMatch(Objects::isNull) || this.environment == null) {
                 throw new IllegalArgumentException("One or few arguments are null");
             }
         } else {
