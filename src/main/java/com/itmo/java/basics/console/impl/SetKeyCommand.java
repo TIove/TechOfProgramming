@@ -7,7 +7,6 @@ import com.itmo.java.basics.console.ExecutionEnvironment;
 import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.protocol.model.RespObject;
 
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,7 +34,7 @@ public class SetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public SetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.contains(null)) {
+        if (commandArgs.contains(null) || env == null) {
             throw new IllegalArgumentException("One or few arguments are null");
         }
 
@@ -62,11 +61,11 @@ public class SetKeyCommand implements DatabaseCommand {
     public DatabaseCommandResult execute() {
         try {
             if (environment.getDatabase(databaseName).isEmpty())
-                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist"); //TODO hz
+                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist");
 
             Optional<byte[]> previousValue = environment.getDatabase(databaseName).get().read(tableName, key);
 
-            environment.getDatabase(databaseName).get().write(tableName, key, value.getBytes()); // TODO hz
+            environment.getDatabase(databaseName).get().write(tableName, key, value.getBytes());
 
             if (previousValue.isPresent()) {
                 return DatabaseCommandResult.success(previousValue.get());

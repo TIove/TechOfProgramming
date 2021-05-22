@@ -32,7 +32,7 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.contains(null)) {
+        if (commandArgs.contains(null) || env == null) {
             throw new IllegalArgumentException("One or few arguments are null");
         }
 
@@ -57,9 +57,9 @@ public class CreateTableCommand implements DatabaseCommand {
     public DatabaseCommandResult execute() {
         try {
             if (environment.getDatabase(databaseName).isEmpty())
-                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist"); //TODO hz
+                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist");
 
-            environment.getDatabase(databaseName).get().createTableIfNotExists(tableName); // TODO hz
+            environment.getDatabase(databaseName).get().createTableIfNotExists(tableName);
 
             return DatabaseCommandResult
                     .success(("Table " + tableName + " in database " + databaseName + " created").getBytes());

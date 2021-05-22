@@ -34,7 +34,7 @@ public class DeleteKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public DeleteKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.contains(null)) {
+        if (commandArgs.contains(null) || env == null) {
             throw new IllegalArgumentException("One or few arguments are null");
         }
 
@@ -60,13 +60,13 @@ public class DeleteKeyCommand implements DatabaseCommand {
     public DatabaseCommandResult execute() {
         try {
             if (environment.getDatabase(databaseName).isEmpty())
-                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist"); //TODO hz
+                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist");
 
             Optional<byte[]> previousValue = environment.getDatabase(databaseName).get().read(tableName, key);
             if (previousValue.isEmpty())
                 return DatabaseCommandResult.error("Cannot get value by key = " + key);
 
-            environment.getDatabase(databaseName).get().delete(tableName, key); // TODO hz
+            environment.getDatabase(databaseName).get().delete(tableName, key);
 
             return DatabaseCommandResult.success(previousValue.get());
         } catch (DatabaseException exc) {

@@ -33,7 +33,7 @@ public class GetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public GetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        if (commandArgs.contains(null)) {
+        if (commandArgs.contains(null) || env == null) {
             throw new IllegalArgumentException("One or few arguments are null");
         }
 
@@ -59,7 +59,7 @@ public class GetKeyCommand implements DatabaseCommand {
     public DatabaseCommandResult execute() {
         try {
             if (environment.getDatabase(databaseName).isEmpty())
-                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist"); //TODO hz
+                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist");
 
             Optional<byte[]> value = environment.getDatabase(databaseName).get().read(tableName, key);
 

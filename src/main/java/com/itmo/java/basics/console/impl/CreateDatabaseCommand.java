@@ -36,7 +36,7 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
-        if (commandArgs.contains(null)) {
+        if (commandArgs.contains(null) || env == null || factory == null) {
             throw new IllegalArgumentException("One or few arguments are null");
         }
 
