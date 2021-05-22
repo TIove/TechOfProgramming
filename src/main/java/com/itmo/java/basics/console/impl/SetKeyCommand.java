@@ -44,13 +44,7 @@ public class SetKeyCommand implements DatabaseCommand {
 
             this.environment = env;
 
-            if (this.id == null ||
-                    this.commandName == null ||
-                    this.databaseName == null ||
-                    this.tableName == null ||
-                    this.environment == null ||
-                    this.key == null ||
-                    this.value == null) {
+            if (commandArgs.contains(null) || this.environment == null) {
                 throw new IllegalArgumentException("One or few arguments are null");
             }
         } else {
