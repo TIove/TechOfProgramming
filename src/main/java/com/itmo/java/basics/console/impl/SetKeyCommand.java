@@ -8,6 +8,7 @@ import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.protocol.model.RespObject;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -44,7 +45,7 @@ public class SetKeyCommand implements DatabaseCommand {
 
             this.environment = env;
 
-            if (commandArgs.contains(null) || this.environment == null) {
+            if (commandArgs.stream().map(RespObject::asString).noneMatch(Objects::isNull) || this.environment == null) {
                 throw new IllegalArgumentException("One or few arguments are null");
             }
         } else {
