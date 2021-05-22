@@ -9,6 +9,7 @@ import com.itmo.java.protocol.model.RespObject;
 
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Команда для создания базы таблицы
@@ -32,6 +33,10 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
+        if (!commandArgs.stream().map(RespObject::asString).allMatch(Objects::nonNull) || env == null) {
+            throw new IllegalArgumentException("One or few arguments are null");
+        }
+
         if (commandArgs.size() == 4) {
             this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
             this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
@@ -39,14 +44,6 @@ public class CreateTableCommand implements DatabaseCommand {
             this.tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
 
             this.environment = env;
-
-            if (this.id == null ||
-                    this.commandName == null ||
-                    this.databaseName == null ||
-                    this.tableName == null ||
-                    this.environment == null) {
-                throw new IllegalArgumentException("One or few arguments are null");
-            }
         } else {
             throw new IllegalArgumentException("Incorrect argument count");
         }

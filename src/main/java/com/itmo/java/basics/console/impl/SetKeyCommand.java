@@ -35,6 +35,10 @@ public class SetKeyCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public SetKeyCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
+        if (!commandArgs.stream().map(RespObject::asString).allMatch(Objects::nonNull) || env == null) {
+            throw new IllegalArgumentException("One or few arguments are null");
+        }
+
         if (commandArgs.size() == 6) {
             this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
             this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
@@ -44,10 +48,6 @@ public class SetKeyCommand implements DatabaseCommand {
             this.value = commandArgs.get(DatabaseCommandArgPositions.VALUE.getPositionIndex()).asString();
 
             this.environment = env;
-
-            if (!commandArgs.stream().map(RespObject::asString).allMatch(Objects::nonNull) || this.environment == null) {
-                throw new IllegalArgumentException("One or few arguments are null");
-            }
         } else {
             throw new IllegalArgumentException("Incorrect argument count");
         }
