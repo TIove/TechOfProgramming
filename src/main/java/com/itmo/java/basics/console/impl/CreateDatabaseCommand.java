@@ -4,15 +4,26 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
+import com.itmo.java.basics.logic.Database;
 import com.itmo.java.basics.logic.DatabaseFactory;
+import com.itmo.java.basics.logic.impl.DatabaseImpl;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Команда для создания базы данных
  */
 public class CreateDatabaseCommand implements DatabaseCommand {
+
+    private final ExecutionEnvironment environment;
+    private final DatabaseFactory factory;
+    public final String id;
+    public final String commandName;
+    private final String databaseName;
 
     /**
      * Создает команду.
@@ -26,7 +37,21 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateDatabaseCommand(ExecutionEnvironment env, DatabaseFactory factory, List<RespObject> commandArgs) {
-        //TODO implement
+        if (!commandArgs.stream().map(RespObject::asString).allMatch(Objects::nonNull) ||
+                env == null ||
+                factory == null) {
+            throw new IllegalArgumentException("One or few arguments are null");
+        }
+        if (commandArgs.size() == 3) {
+            this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
+            this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
+            this.databaseName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+
+            this.environment = env;
+            this.factory = factory;
+        } else {
+            throw new IllegalArgumentException("Incorrect argument count");
+        }
     }
 
     /**
@@ -36,7 +61,15 @@ public class CreateDatabaseCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        try {
+            var database = factory.createNonExistent(databaseName, environment.getWorkingPath());
+
+            environment.addDatabase(database);
+
+            return DatabaseCommandResult
+                    .success(("Database " + databaseName + " created").getBytes());
+        } catch (DatabaseException exc) {
+            return DatabaseCommandResult.error(exc);
+        }
     }
 }

@@ -1,7 +1,10 @@
 package com.itmo.java.protocol.model;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * Сообщение об ошибке в RESP протоколе
@@ -13,8 +16,10 @@ public class RespError implements RespObject {
      */
     public static final byte CODE = '-';
 
+    private final byte[] message;
+
     public RespError(byte[] message) {
-        //TODO implement
+        this.message = message;
     }
 
     /**
@@ -29,12 +34,13 @@ public class RespError implements RespObject {
 
     @Override
     public String asString() {
-        //TODO implement
-        return null;
+        return new String(message);
     }
 
     @Override
     public void write(OutputStream os) throws IOException {
-        //TODO implement
+        os.write(CODE);
+        os.write(message);
+        os.write(CRLF);
     }
 }

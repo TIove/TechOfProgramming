@@ -4,14 +4,23 @@ import com.itmo.java.basics.console.DatabaseCommand;
 import com.itmo.java.basics.console.DatabaseCommandArgPositions;
 import com.itmo.java.basics.console.DatabaseCommandResult;
 import com.itmo.java.basics.console.ExecutionEnvironment;
+import com.itmo.java.basics.exceptions.DatabaseException;
 import com.itmo.java.protocol.model.RespObject;
 
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Команда для создания базы таблицы
  */
 public class CreateTableCommand implements DatabaseCommand {
+
+    private final ExecutionEnvironment environment;
+    public final String id;
+    public final String commandName;
+    private final String databaseName;
+    private final String tableName;
 
     /**
      * Создает команду
@@ -24,7 +33,20 @@ public class CreateTableCommand implements DatabaseCommand {
      * @throws IllegalArgumentException если передано неправильное количество аргументов
      */
     public CreateTableCommand(ExecutionEnvironment env, List<RespObject> commandArgs) {
-        //TODO implement
+        if (!commandArgs.stream().map(RespObject::asString).allMatch(Objects::nonNull) || env == null) {
+            throw new IllegalArgumentException("One or few arguments are null");
+        }
+
+        if (commandArgs.size() == 4) {
+            this.id = commandArgs.get(DatabaseCommandArgPositions.COMMAND_ID.getPositionIndex()).asString();
+            this.commandName = commandArgs.get(DatabaseCommandArgPositions.COMMAND_NAME.getPositionIndex()).asString();
+            this.databaseName = commandArgs.get(DatabaseCommandArgPositions.DATABASE_NAME.getPositionIndex()).asString();
+            this.tableName = commandArgs.get(DatabaseCommandArgPositions.TABLE_NAME.getPositionIndex()).asString();
+
+            this.environment = env;
+        } else {
+            throw new IllegalArgumentException("Incorrect argument count");
+        }
     }
 
     /**
@@ -34,7 +56,16 @@ public class CreateTableCommand implements DatabaseCommand {
      */
     @Override
     public DatabaseCommandResult execute() {
-        //TODO implement
-        return null;
+        try {
+            if (environment.getDatabase(databaseName).isEmpty())
+                return DatabaseCommandResult.error("DataBase " + databaseName + " doesn't exist");
+
+            environment.getDatabase(databaseName).get().createTableIfNotExists(tableName);
+
+            return DatabaseCommandResult
+                    .success(("Table " + tableName + " in database " + databaseName + " created").getBytes());
+        } catch (DatabaseException exc) {
+            return DatabaseCommandResult.error(exc);
+        }
     }
 }
